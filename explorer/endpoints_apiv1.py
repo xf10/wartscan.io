@@ -77,7 +77,6 @@ def construct_blueprint(scanner):
             else:
                 return {"error": "invalid address format"}
 
-    # TODO stopped here
     @ns.route("/accounts/transactions", methods=['GET'])
     @ns.doc(params={'address': '48-character hexadecimal address',
                     'p': 'Page Index (starting at 1) (25 transactions per page)'})
@@ -98,7 +97,7 @@ def construct_blueprint(scanner):
                 # force lower case
                 address = address.lower()
 
-                txs = s.gettxsforaccount(address, page)
+                txs = s.get_txs_for_account(address, page)
                 if txs is None:
                     txs = {"error": "no transactions found"}, 400
                 return txs
