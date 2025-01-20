@@ -1,0 +1,293 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Mining Calculator | Warthog (WART) Blockchain Explorer
+{% endblock %}
+
+{% block content %}
+<div class="h-8"></div>
+    <div class="">
+        <p class="font-bold text-2xl pb-2">Mining Calculator</p>
+        <div class="w-full overflow-auto">
+            <div class="bg-neutral-50 dark:bg-neutral-900 rounded-lg border border-neutral-700 min-w-fit p-4">
+              <p>Calculate how much WART you'll earn per day, week and month based on your mining hashrate.</p>
+                <hr class="my-4 border-neutral-700">
+              <label>Network Hashrate:</label>
+              <label class="text-orange-300"> {{ network_hashrate }} TH/s </label>
+                <div></div>
+              <label>Coin Price:</label>
+              <label class="text-orange-300"> {{ price }} USD </label>
+                <div></div>
+              <label for="fhashrate">Miner Janusscore in GH/s:</label>
+              <input class="h-8 w-24 bg-neutral-50 dark:bg-neutral-900 border rounded-lg border-neutral-700 placeholder:italic placeholder:text-neutral-500 px-2 focus:outline-none focus:border-neutral-500 focus:ring-neutral-500" type="number" step="any" id="fhashrate" name="fhashrate" value="0">
+                <hr class="my-4 border-neutral-700">
+              <table class="table-auto w-full divide-neutral-700 divide-y rounded-lg px-4">
+                  <tr class="text-left text-md leading-4">
+                      <th>Period</th>
+                      <th>Coins</th>
+                      <th>USD</th>
+                  </tr>
+                  <tr>
+                      <td class="py-4">Daily</td>
+                      <td id='rd' class="text-green-500">0</td>
+                      <td id='rdusd' class="text-green-500">0</td>
+                  </tr>
+                  <tr>
+                      <td class="py-4">Weekly</td>
+                      <td id='rw' class="text-green-500">0</td>
+                      <td id='rwusd' class="text-green-500">0</td>
+                  </tr>
+                  <tr>
+                      <td class="py-4">Monthly</td>
+                      <td id='rm' class="text-green-500">0</td>
+                      <td id='rmusd' class="text-green-500">0</td>
+                  </tr>
+              </table>
+                <hr class="my-4 border-neutral-700">
+
+                <div class="hidden 2xl:block float-right">
+                    <p>Trade WART on XeggeX:</p>
+                    <a href="https://xeggex.com/market/WART_USDT?ref=631145aa14cd9f74ffbe0de3&campaign=wartscan&source=wartscan&zone=calc" target="_blank"><img src="/static/img/xeggex_banner.webp" width="300" height="100"></a>
+                </div>
+
+                <p class="text-xl">Janusscore</p>
+
+                <p>Select a GPU/CPU combination to estimate your hashrate.</p>
+                <br>
+                <div>
+                    <label for="select_gpu">Select GPU:</label>
+                    <select class="inline h-8 w-72 bg-neutral-50 dark:bg-neutral-900 border rounded-lg border-neutral-700 px-2 focus:outline-none focus:border-neutral-500 focus:ring-neutral-500" name="select_gpu" id="select_gpu">
+                        <option value="custom">Custom Hashrate</option>
+                        <option value="1400">AMD 6800 XT (TUF), 1400mh/s</option>
+                        <option value="79">AMD RX 550, 79mh/s</option>
+                        <option value="617">AMD RX 5700 XT, 617mh/s</option>
+                        <option value="517">AMD RX 580, 517mh/s</option>
+                        <option value="535">AMD RX 580, 535mh/s</option>
+                        <option value="1000">AMD RX 6600 XT, 1000mh/s</option>
+                        <option value="2200">AMD RX 7800 XT, 2200mh/s</option>
+                        <option value="308">AMD Radeon 780M, 308mh/s</option>
+                        <option value="1600">Intel Arc A770 BiFrost, 1600mh/s</option>
+                        <option value="1900">Intel Arc A770 BiFrost, 1900mh/s</option>
+                        <option value="1600">Intel Arc A770 LE, 1600mh/s</option>
+                        <option value="347">Nvidia GTX 1060, 347mh/s</option>
+                        <option value="320">Nvidia GTX 1650, 320mh/s</option>
+                        <option value="504">Nvidia GTX 1660 Super, 504mh/s</option>
+                        <option value="450">Nvidia GTX 1660 Ti Max-Q, 450mh/s</option>
+                        <option value="450">Nvidia GTX 1660 Ti, 450mh/s</option>
+                        <option value="507">Nvidia GTX 1660 super, 507.5mh/s</option>
+                        <option value="111">Nvidia Quadro M2000M, 111mh/s</option>
+                        <option value="831">Nvidia Quadro RTX4000, 831mh/s</option>
+                        <option value="526">Nvidia RTX 2060 Super, 526mh/s</option>
+                        <option value="778">Nvidia RTX 2060 Super, 778mh/s</option>
+                        <option value="825">Nvidia RTX 2060 Super, 825mh/s</option>
+                        <option value="642">Nvidia RTX 2060, 642mh/s</option>
+                        <option value="1200">Nvidia RTX 2080 Super, 1200mh/s</option>
+                        <option value="1500">Nvidia RTX 2080 Super, 1500mh/s</option>
+                        <option value="1500">Nvidia RTX 3060 (3x), 1500mh/s</option>
+                        <option value="1489">Nvidia RTX 3060 Ti (2x), 1489mh/s</option>
+                        <option value="1785">Nvidia RTX 3060 Ti (2x), 1785mh/s</option>
+                        <option value="1934">Nvidia RTX 3060 Ti (2x), 1934.4mh/s</option>
+                        <option value="915">Nvidia RTX 3060 Ti (ASUS Dual Mini), 915.2mh/s</option>
+                        <option value="1200">Nvidia RTX 3060 Ti Dual OC (ASUS), 1200mh/s</option>
+                        <option value="1000">Nvidia RTX 3060 Ti, 1000mh/s</option>
+                        <option value="1000">Nvidia RTX 3060 Ti, 1000mh/s</option>
+                        <option value="1100">Nvidia RTX 3060 Ti, 1100mh/s</option>
+                        <option value="1400">Nvidia RTX 3060 Ti, 1400mh/s</option>
+                        <option value="855">Nvidia RTX 3060 Ti, 855mh/s</option>
+                        <option value="950">Nvidia RTX 3060 Ti, 950mh/s</option>
+                        <option value="971">Nvidia RTX 3060 Ti, 971mh/s</option>
+                        <option value="980">Nvidia RTX 3060 Ti, 980mh/s</option>
+                        <option value="985">Nvidia RTX 3060 Ti, 985.6mh/s</option>
+                        <option value="986">Nvidia RTX 3060 Ti, 986mh/s</option>
+                        <option value="775">Nvidia RTX 3060 XC (EVGA), 775mh/s</option>
+                        <option value="892">Nvidia RTX 3060 XC (EVGA), 892mh/s</option>
+                        <option value="900">Nvidia RTX 3060 XC (EVGA), 900mh/s</option>
+                        <option value="681">Nvidia RTX 3060, 681mh/s</option>
+                        <option value="5200">Nvidia RTX 3070 (4x), 5200mh/s</option>
+                        <option value="420">Nvidia RTX 3070 (MSI GAMING X TRIO), 420mh/s</option>
+                        <option value="1100">Nvidia RTX 3070, 1100mh/s</option>
+                        <option value="1300">Nvidia RTX 3070, 1300mh/s</option>
+                        <option value="1300">Nvidia RTX 3070, 1300mh/s</option>
+                        <option value="1700">Nvidia RTX 3080 (GIGABYTE), 1700mh/s</option>
+                        <option value="1500">Nvidia RTX 3080 (Xtreme Waterforce), 1500mh/s</option>
+                        <option value="1500">Nvidia RTX 3080 10GB, 1500mh/s</option>
+                        <option value="1600">Nvidia RTX 3080 10GB, 1600mh/s</option>
+                        <option value="1600">Nvidia RTX 3080, 1600mh/s</option>
+                        <option value="1700">Nvidia RTX 3080, 1700mh/s</option>
+                        <option value="1800">Nvidia RTX 3080, 1800mh/s</option>
+                        <option value="1900">Nvidia RTX 3080, 1900mh/s</option>
+                        <option value="5900">Nvidia RTX 3090 (5x), 5900mh/s</option>
+                        <option value="2000">Nvidia RTX 3090, 2000mh/s</option>
+                        <option value="2100">Nvidia RTX 3090, 2100mh/s</option>
+                        <option value="1300">Nvidia RTX 4000 SFF Ada, 1300mh/s</option>
+                        <option value="2100">Nvidia RTX 4070 Super (Asus Dual Fan), 2100mh/s</option>
+                        <option value="2200">Nvidia RTX 4070 Super, 2200mh/s</option>
+                        <option value="2700">Nvidia RTX 4070 Ti Super, 2700mh/s</option>
+                        <option value="2500">Nvidia RTX 4070 Ti, 2500mh/s</option>
+                        <option value="3000">Nvidia RTX 4070 Ti, 3000mh/s</option>
+                        <option value="1600">Nvidia RTX 4070, 1600mh/s</option>
+                        <option value="1800">Nvidia RTX 4070, 1800mh/s</option>
+                        <option value="1800">Nvidia RTX 4070, 1800mh/s</option>
+                        <option value="1900">Nvidia RTX 4070, 1900mh/s</option>
+                        <option value="2600">Nvidia RTX 4080 Super, 2600mh/s</option>
+                        <option value="4100">Nvidia RTX 4090, 4100mh/s</option>
+                        <option value="4700">Nvidia RTX 4090, 4700mh/s</option>
+                        <option value="5000">Nvidia RTX 4090, 5000mh/s</option>
+                        <option value="5500">Nvidia RTX 4090, 5500mh/s</option>
+                        <option value="566">Nvidia RTX A2000 (3x), 566mh/s</option>
+                    </select>
+                    <input class="inline h-8 w-24 bg-neutral-50 dark:bg-neutral-900 border rounded-lg border-neutral-700 placeholder:italic placeholder:text-neutral-500 px-2 focus:outline-none focus:border-neutral-500 focus:ring-neutral-500" type="text" id="sha256t_hashrate" name="sha256t_hashrate">
+                    <label for="sha256t_hashrate">MH/s</label>
+                </div>
+                <br>
+                <div>
+                    <label for="select_cpu">Select CPU:</label>
+                    <select class="inline h-8 w-72 bg-neutral-50 dark:bg-neutral-900 border rounded-lg border-neutral-700 px-2 focus:outline-none focus:border-neutral-500 focus:ring-neutral-500" name="select_cpu" id="select_cpu">
+                        <option value="custom">Custom Hashrate</option>
+                        <option value="120.13">AMD Epyc 7642 (2x), 120.13mh/s</option>
+                        <option value="123.11">AMD Epyc 7742 (2x), 123.11mh/s</option>
+                        <option value="50">AMD Epyc 7532, 50mh/s</option>
+                        <option value="82">AMD Epyc 7742, 82mh/s</option>
+                        <option value="92.8">AMD Epyc 7742, 92.8mh/s</option>
+                        <option value="83.5">AMD Epyc 7K62, 83.5mh/s</option>
+                        <option value="97">AMD Epyc 7V12, 97mh/s</option>
+                        <option value="184">AMD Epyc 9654, 184mh/s</option>
+                        <option value="8.71">AMD Ryzen 5 1600 , 8.71mh/s</option>
+                        <option value="10.3">AMD Ryzen 5 1600, 10.3mh/s</option>
+                        <option value="6.3">AMD Ryzen 5 1600, 6.3mh/s</option>
+                        <option value="9.2">AMD Ryzen 5 1600X, 9.2mh/s</option>
+                        <option value="12">AMD Ryzen 5 3600, 12mh/s</option>
+                        <option value="12.43">AMD Ryzen 5 5500, 12.43mh/s</option>
+                        <option value="10">AMD Ryzen 5 5600X, 10mh/s</option>
+                        <option value="13.5">AMD Ryzen 5 5600X, 13.5mh/s</option>
+                        <option value="18">AMD Ryzen 7 3700X, 18mh/s</option>
+                        <option value="18">AMD Ryzen 7 4800H, 18mh/s</option>
+                        <option value="18.5">AMD Ryzen 7 5800X, 18.5mh/s</option>
+                        <option value="19.5">AMD Ryzen 7 5800X, 19.5mh/s</option>
+                        <option value="15.88">AMD Ryzen 7 7800X3D, 15.88mh/s</option>
+                        <option value="16.3">AMD Ryzen 7 7800X3D, 16.3mh/s</option>
+                        <option value="15.8">AMD Ryzen 7 8845HS, 15.8mh/s</option>
+                        <option value="26">AMD Ryzen 7 9700X, 26mh/s</option>
+                        <option value="21.45">AMD Ryzen 9 3900X, 21.45mh/s</option>
+                        <option value="23.12">AMD Ryzen 9 3900X, 23.12mh/s</option>
+                        <option value="23.6">AMD Ryzen 9 3900X, 23.6mh/s</option>
+                        <option value="24.04">AMD Ryzen 9 3900X, 24.04mh/s</option>
+                        <option value="24.4">AMD Ryzen 9 3900X, 24.4mh/s</option>
+                        <option value="24.56">AMD Ryzen 9 3900X, 24.56mh/s</option>
+                        <option value="24.7">AMD Ryzen 9 3900X, 24.7mh/s</option>
+                        <option value="25.6">AMD Ryzen 9 3900X, 25.6mh/s</option>
+                        <option value="24.6">AMD Ryzen 9 3900XT, 24.6mh/s</option>
+                        <option value="28.1">AMD Ryzen 9 3950X, 28.1mh/s</option>
+                        <option value="36.8">AMD Ryzen 9 3950X, 36.8mh/s</option>
+                        <option value="36.8">AMD Ryzen 9 3950X, 36.8mh/s</option>
+                        <option value="26.58">AMD Ryzen 9 5900X, 26.58mh/s</option>
+                        <option value="28">AMD Ryzen 9 5900X, 28mh/s</option>
+                        <option value="28">AMD Ryzen 9 5900X, 28mh/s</option>
+                        <option value="32.4">AMD Ryzen 9 5900X, 32.4mh/s</option>
+                        <option value="36.35">AMD Ryzen 9 5950X, 36.35mh/s</option>
+                        <option value="37">AMD Ryzen 9 5950X, 37mh/s</option>
+                        <option value="37.5">AMD Ryzen 9 5950X, 37.5mh/s</option>
+                        <option value="39.04">AMD Ryzen 9 5950X, 39.04mh/s</option>
+                        <option value="40.62">AMD Ryzen 9 5950X, 40.62mh/s</option>
+                        <option value="27.29">AMD Ryzen 9 7900X, 27.29mh/s</option>
+                        <option value="34">AMD Ryzen 9 7900X3D, 34mh/s</option>
+                        <option value="36.76">AMD Ryzen 9 7950X, 36.76mh/s</option>
+                        <option value="37.01">AMD Ryzen 9 7950X, 37.01mh/s</option>
+                        <option value="43">AMD Ryzen 9 7950X, 43mh/s</option>
+                        <option value="43">AMD Ryzen 9 7950X, 43mh/s</option>
+                        <option value="44.63">AMD Ryzen 9 7950X, 44.63mh/s</option>
+                        <option value="45.9">AMD Ryzen 9 7950X, 45.9mh/s</option>
+                        <option value="46.8">AMD Ryzen 9 7950X, 46.8mh/s</option>
+                        <option value="46.96">AMD Ryzen 9 7950X, 46.96mh/s</option>
+                        <option value="47.46">AMD Ryzen 9 7950X, 47.46mh/s</option>
+                        <option value="49.4">AMD Ryzen 9 7950X, 49.4mh/s</option>
+                        <option value="49.59">AMD Ryzen 9 7950X, 49.59mh/s</option>
+                        <option value="50">AMD Ryzen 9 7950X, 50mh/s</option>
+                        <option value="53.4">AMD Ryzen 9 7950X, 53.4mh/s</option>
+                        <option value="45">AMD Ryzen 9 7950X3D, 45mh/s</option>
+                        <option value="25.58">Intel E5-2697v2 (2x), 25.58mh/s</option>
+                        <option value="11.24">Intel Xeon E5-2630v4, 11.24mh/s</option>
+                        <option value="14.6">Intel Core i5 12400F, 14.6mh/s</option>
+                        <option value="18">Intel Core i5 13500, 18mh/s</option>
+                        <option value="30">Intel Core i5 13600K, 30mh/s</option>
+                        <option value="i5-10300H, 6">Intel Core i5-10300H, 6mh/s</option>
+                        <option value="i5-10400, 9">Intel Core i5-10400, 9mh/s</option>
+                        <option value="5.49">Intel Core i5-9600K, 5.49mh/s</option>
+                        <option value="i5-9600K, 6">Intel Core i5-9600K, 6mh/s</option>
+                        <option value="7.4">Intel Core i5-9600K, 7.4mh/s</option>
+                        <option value="15.3">Intel Core i7-10700F, 15.3mh/s</option>
+                        <option value="16.1">Intel Core i7-10700F, 16.1mh/s</option>
+                        <option value="16.1">Intel Core i7-10700F, 16.1mh/s</option>
+                        <option value="34">Intel Core i7-14700F, 34mh/s</option>
+                        <option value="4.76">Intel Core i7-6820HQ, 4.76mh/s</option>
+                        <option value="8.4">Intel Core i7-8700K, 8.4mh/s</option>
+                        <option value="26.09">Intel Core i9-12900K, 26.09mh/s</option>
+                        <option value="28.14">Intel Core i9-12900K, 28.14mh/s</option>
+                    </select>
+                    <input class="inline h-8 w-24 bg-neutral-50 dark:bg-neutral-900 border rounded-lg border-neutral-700 placeholder:italic placeholder:text-neutral-500 px-2 focus:outline-none focus:border-neutral-500 focus:ring-neutral-500" type="text" id="verus_hashrate" name="verus_hashrate">
+                    <label for="verus_hashrate">MH/s</label>
+                    <br>
+                </div>
+
+                <br/>
+                Janusscore:<div class="inline pl-4" id="janusscore">N/A</div> MH/s |<div class="inline pl-4" id="janusscoreghs">N/A</div> GH/s
+                <div class="2xl:hidden mt-4">
+                    <p>Trade WART on XeggeX:</p>
+                    <a href="https://xeggex.com/market/WART_USDT?ref=631145aa14cd9f74ffbe0de3&campaign=wartscan&source=wartscan&zone=calc" target="_blank"><img src="/static/img/xeggex_banner.webp" width="300" height="100"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+  <script>
+          const input = document.getElementById('fhashrate');
+          const rd = document.getElementById('rd');
+          const rw = document.getElementById('rw');
+          const rm = document.getElementById('rm');
+          const rdusd = document.getElementById('rdusd');
+          const rwusd = document.getElementById('rwusd');
+          const rmusd = document.getElementById('rmusd');
+
+          input.addEventListener('change', updateValue);
+
+          function updateValue(e) {
+              rd.textContent = String(Math.round((input.value / (({{ network_hashrate }} * 1000) + Number(input.value))) * 4320 * {{ blockreward }} * (10 ** 8)) / (10 ** 8)) + ' WART';
+              rw.textContent = String(Math.round((input.value / (({{ network_hashrate }} * 1000) + Number(input.value))) * 4320 * {{ blockreward }} * 7 * (10 ** 8)) / (10 ** 8)) + ' WART';
+              rm.textContent = String(Math.round((input.value / (({{ network_hashrate }} * 1000) + Number(input.value))) * 4320 * {{ blockreward }} * 30 * (10 ** 8)) / (10 ** 8)) + ' WART';
+              rdusd.textContent = String(Math.round(((input.value / (({{ network_hashrate }} * 1000) + Number(input.value))) * 4320 * {{ blockreward }}) * {{ price }} * 100) / 100) + ' USD';
+              rwusd.textContent = String(Math.round(((input.value / (({{ network_hashrate }} * 1000) + Number(input.value))) * 4320 * {{ blockreward }} * 7) * {{ price }} * 100) / 100) + ' USD';
+              rmusd.textContent = String(Math.round(((input.value / (({{ network_hashrate }} * 1000) + Number(input.value))) * 4320 * {{ blockreward }} * 30) * {{ price }} * 100) / 100) + ' USD';
+          }
+
+            const select_gpu = document.getElementById('select_gpu');
+            const select_cpu = document.getElementById('select_cpu');
+            const gpu_input = document.getElementById('sha256t_hashrate');
+            const cpu_input = document.getElementById('verus_hashrate');
+            const janus = document.getElementById('janusscore');
+            const janusghs = document.getElementById('janusscoreghs');
+
+            select_gpu.addEventListener('change', () => {
+                gpu_input.disabled = select_gpu.value != "custom"
+                if (select_gpu.value != "custom"){
+                    gpu_input.value = select_gpu.value;
+                }
+                calcJanus();
+            });
+            select_cpu.addEventListener('change', () => {
+                cpu_input.disabled = select_cpu.value != "custom"
+                if (select_cpu.value != "custom"){
+                    cpu_input.value = select_cpu.value;
+                }
+                calcJanus();
+            });
+            gpu_input.addEventListener('input', calcJanus);
+
+
+            cpu_input.addEventListener('input', calcJanus);
+            gpu_input.addEventListener('input', calcJanus);
+
+            function calcJanus(e) {
+            janus.textContent = String(Math.round(Number(gpu_input.value) * 10 * ((0.005 + Number(cpu_input.value)/Number(gpu_input.value))**0.3 - 0.005**0.3) / 3));
+            janusghs.textContent = String(Math.round(Number(gpu_input.value) * 10 * ((0.005 + Number(cpu_input.value)/Number(gpu_input.value))**0.3 - 0.005**0.3) / 3 / 1000 * 1000) / 1000);
+            }
+  </script>
+{% endblock %}

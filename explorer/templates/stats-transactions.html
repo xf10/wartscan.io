@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Transaction Statistics | Warthog (WART) Blockchain Explorer
+{% endblock %}
+
+{% block content %}
+    <div class="h-8"></div>
+    <div class="">
+      <p class="font-bold text-2xl pb-2">Transaction Statistics</p>
+      <div class="w-full">
+        <div class="bg-neutral-50 dark:bg-neutral-900 rounded-lg border border-neutral-700 overflow-auto">
+          <table class="table-auto w-full divide-neutral-700 divide-y rounded-lg px-4">
+            <thead class="text-left text-md leading-4">
+              <tr>
+                <th class="bg-neutral-50 dark:bg-neutral-900 p-4 text-neutral-500 rounded-tl-lg"></th>
+                <th class="bg-neutral-50 dark:bg-neutral-900 p-4 text-neutral-500">24h</th>
+                <th class="bg-neutral-50 dark:bg-neutral-900 p-4 text-neutral-500">7d</th>
+                <th class="bg-neutral-50 dark:bg-neutral-900 p-4 text-neutral-500 rounded-tr-lg">30d</th>
+              </tr>
+            </thead>
+            <tbody class="divide-neutral-700 divide-y text-md leading-4">
+              {% for v in txdata %}
+              <tr>
+                <td class="p-4">{{ v[0] }}</td>
+                <td class="p-4">{{ v[1] }}</td>
+                <td class="p-4">{{ v[2] }}</td>
+                <td class="p-4">{{ v[3] }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+{% endblock %}

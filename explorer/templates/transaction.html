@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ title | safe}} | Warthog (WART) Blockchain Explorer
+{% endblock %}
+
+{% block content %}
+    <div class="h-8"></div>
+    <div class="">
+      <p class="font-bold text-2xl pb-2">Transaction</p>
+      <div class="w-full">
+        <div class="bg-neutral-50 dark:bg-neutral-900 rounded-lg border border-neutral-700 overflow-auto">
+          <table class="table-auto w-full divide-neutral-700 divide-y rounded-lg px-4">
+            <tbody class=" text-md leading-4">
+            {% for v in txdata %}
+            <tr>
+              <td class="p-4 text-neutral-500">{{ v[0].uppder() + v[1:] }}:</td>
+              <td class="p-4">{{ v[1] | safe }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+{% endblock %}

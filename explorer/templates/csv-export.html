@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}
+CSV Export | Warthog (WART) Blockchain Explorer
+{% endblock %}
+
+{% block content %}
+    <div class="h-8"></div>
+    <div class="">
+        <p class="font-bold text-2xl pb-2">CSV Export</p>
+        <div class="w-full">
+            <div class="bg-neutral-50 dark:bg-neutral-900 rounded-lg border border-neutral-700 p-4 overflow-auto">
+                <form class="flex flex-col" action="/exportcsv" method="post">
+                    <label>
+                        Export transactions for<br>
+                        <input class="h-8 w-full md:w-96 bg-neutral-50 dark:bg-neutral-900 border rounded-lg border-neutral-700 placeholder:italic placeholder:text-neutral-500 px-2 focus:outline-none focus:border-neutral-500 focus:ring-neutral-500" name="address" placeholder="Address" value="{{ address }}">
+                    </label>
+                    <div class="h-4"></div>
+                    <label>
+                        Start Date<br>
+                        <input class="h-8 w-full md:w-fit bg-neutral-50 dark:bg-neutral-900 border rounded-lg border-neutral-700 focus:outline-none focus:border-neutral-500 focus:ring-neutral-500" type="datetime-local" name="start_date" value="2023-01-01T00:00" min="2023-01-01T00:00" max="2100-12-31T23:59" />
+                    </label>
+                    <div class="h-4"></div>
+                    <label>
+                        End Date<br>
+                        <input class="h-8 w-full md:w-fit bg-neutral-50 dark:bg-neutral-900 border rounded-lg border-neutral-700 focus:outline-none focus:border-neutral-500 focus:ring-neutral-500" type="datetime-local" name="end_date" value="2024-01-01T23:59" min="2023-01-02T00:00" max="2100-12-31T23:59" />
+                    </label>
+                    <div class="h-8"></div>
+                    <button class="h-8 w-full md:w-24 bg-neutral-50 dark:bg-neutral-900 border rounded-lg border-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-950" type="submit">
+                        Download
+                    </button>
+                    <div class="h-4"></div>
+                    <p class="italic">limited to 5000 transactions per request</p>
+                    <p class="italic">(refresh the page if you want to download multiple times)</p>
+                    <div class="h-4"></div>
+                    {{ turnstile }}
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

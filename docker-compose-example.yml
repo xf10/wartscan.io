@@ -1,0 +1,121 @@
+version: "3"
+
+services:
+  node1:
+    build:
+      context: Warthog
+    restart: unless-stopped
+    volumes:
+      - ./node/data:/warthog/.warthog
+    entrypoint: ./wart-node-linux --rpc=0.0.0.0:3000 --chain-db=/warthog/.warthog/chain.db --peers-db=/warthog/.warthog/peers.db
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "10m"
+  sync:
+    build:
+      context: sync
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=POSTGRES_USER_HERE
+      - POSTGRES_PASSWORD=POSTGRES_PASSWORD_HERE
+      - POSTGRES_DB=explorer
+      - HOSTS=http://EXAMPLEHOST1,http://EXAMPLEHOST2
+      - NOTIFICATIONS_ENABLED=true # set to false to disable notifications
+      - NOTIFICATIONS_WEBHOOK_URL=DISCORD_WEBHOOK_URL_HERE
+    depends_on:
+      - db
+    ports:
+      - '3131'
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "10m"
+  db:
+    image: postgres:latest
+    restart: unless-stopped
+    command: >
+      postgres
+      -c shared_preload_libraries='pg_stat_statements'
+    environment:
+      - POSTGRES_USER=POSTGRES_USER_HERE
+      - POSTGRES_PASSWORD=POSTGRES_PASSWORD_HERE
+      - POSTGRES_DB=explorer
+    ports:
+      - '5432'
+    volumes:
+      - ./dbdata:/var/lib/postgresql/data
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "10m"
+  explorer:
+    build:
+      context: explorer
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=POSTGRES_USER_HERE
+      - POSTGRES_PASSWORD=POSTGRES_PASSWORD_HERE
+      - POSTGRES_DB=explorer
+      - SECRET_KEY=RANDOM_SECRET_KEY_HERE # currently unused
+      - TURNSTILE_SITE_KEY=TURNSTILE_SITE_KEY_HERE
+      - TURNSTILE_SECRET_KEY=TURNSTILE_SECRET_KEY_HERE
+    depends_on:
+      - db
+      - memcached
+    ports:
+      - "5000"
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "10m"
+  memcached:
+    image: memcached
+    restart: unless-stopped
+    command:
+      - --conn-limit=64
+      - --memory-limit=1024
+      - --threads=4
+      - --port=11211
+    ports:
+      - "11211"
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "10m"
+  nginx:
+    image: nginx:latest
+    restart: unless-stopped
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./explorer/static:/opt/explorer/static:ro
+    depends_on:
+      - explorer
+    ports:
+      - "80:80"
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "10m"
+
+# OPTIONAL
+
+#  bot:
+#    build:
+#      context: bot
+#    restart: unless-stopped
+#    environment:
+#      - BOT_TOKEN=DISCORD_BOT_TOKEN_HERE
+#    depends_on:
+#      - explorer
+#    logging:
+#      driver: "json-file"
+#      options:
+#        max-file: "5"
+#        max-size: "10m"

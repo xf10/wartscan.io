@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Charts | Warthog (WART) Blockchain Explorer
+{% endblock %}
+
+{% block content %}
+<div class="h-8"></div>
+    <div class="">
+        <p class="font-bold text-2xl pb-2">Charts</p>
+        <div class="w-full">
+            <div class="bg-neutral-50 dark:bg-neutral-900 rounded-lg border border-neutral-700 p-4 flex flex-wrap justify-evenly overflow-auto">
+                <h3 class="w-full p-4 font-bold text-center">Last 24-Hour Charts</h3>
+
+                <a href="/charts/24hhashrate" class="rounded-lg border border-neutral-700 flex flex-col justify-evenly items-center w-fit">
+                    <div class="h-36 w-56 bg-cover bg-[url('/static/img/24hr-hashrate.png')] p-2"></div>
+                    <p>Hashrate & Difficulty</p>
+                </a>
+                <a href="/charts/24hblocktime" class="rounded-lg border border-neutral-700 flex flex-col justify-evenly items-center w-fit">
+                    <div class="h-36 w-56 bg-cover bg-[url('/static/img/24hr-blocktime.png')] p-2"></div>
+                    <p>Blocktime</p>
+                </a>
+                <a href="/charts/24htps" class="rounded-lg border border-neutral-700 flex flex-col justify-evenly items-center w-fit">
+                    <div class="h-36 w-56 bg-cover bg-[url('/static/img/24hr-txspb.png')] p-2"></div>
+                    <p>Transactions Per Block</p>
+                </a>
+                <h3 class="w-full p-4 font-bold text-center">Daily Charts</h3>
+                <a href="/charts/dailyhashrate" class="rounded-lg border border-neutral-700 flex flex-col justify-evenly items-center w-fit">
+                    <div class="h-36 w-56 bg-cover bg-[url('/static/img/d-hashrate.png')] p-2"></div>
+                    <p>Hashrate & Difficulty</p>
+                </a>
+                <a href="/charts/dailytps" class="rounded-lg border border-neutral-700 flex flex-col justify-evenly items-center w-fit">
+                    <div class="h-36 w-56 bg-cover bg-[url('/static/img/d-tps.png')] p-2"></div>
+                    <p>Transactions Per Second</p>
+                </a>
+                <a href="/charts/dailyactive" class="rounded-lg border border-neutral-700 flex flex-col justify-evenly items-center w-fit">
+                    <div class="h-36 w-56 bg-cover bg-[url('/static/img/d-dau.png')] p-2"></div>
+                    <p>Daily Active Addresses</p>
+                </a>
+                <h3 class="w-full text p-4 font-bold text-center">Other Charts</h3>
+                <a href="/charts/wealthchart" class="rounded-lg border border-neutral-700 flex flex-col justify-evenly items-center w-fit">
+                    <div class="h-36 w-56 bg-cover bg-[url('/static/img/top.png')] p-2"></div>
+                    <p>Top 100 Wallets Pie Chart</p>
+                </a>
+            </div>
+        </div>
+    </div>
+
+<div class="middle">
+    <div class="t">
+<!--                <p style="font-style: italic;">ad</p>-->
+    </div>
+</div>
+{% endblock %}

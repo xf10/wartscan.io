@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Warthog (WART) Blockchain Explorer
+{% endblock %}
+
+{% block content %}
+          <div class="h-8"></div>
+            <div class="">
+                <p class="font-bold text-2xl pb-2"></p>
+                <div class="flex flex-col md:flex-row justify-between items-center bg-neutral-50 dark:bg-neutral-900 rounded-lg p-4 border border-neutral-700 overflow-auto">
+                    <div class="flex flex-row lg:flex-col w-full md:w-8/12">
+                        <div class="flex flex-col lg:flex-row w-full items-start justify-between lg:divide-x lg:divide-neutral-700 lg:pb-2">
+                            <div class="flex justify-center items-start flex-col w-32 lg:w-4/12">
+                                <p class="text-neutral-500 w-full">Hashrate</p>
+                                <p class="font-bold text-lg">{{ hashrate }} TH/s</p>
+                            </div>
+                            <div class="flex justify-center items-start flex-col w-32 lg:w-4/12 lg:pl-4">
+                                <p class="text-neutral-500 w-full">Height</p>
+                                <p class="font-bold text-lg">{{ height }}</p>
+                            </div>
+                            <div class="flex justify-center items-start flex-col w-32 lg:w-4/12 lg:pl-4">
+                                <p class="text-neutral-500 w-full">Price</p>
+                                <p class="font-bold text-lg">${{ price }}</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col lg:flex-row w-full items-center justify-between lg:divide-x lg:divide-neutral-700 lg:pt-2">
+                            <div class="flex justify-center items-start flex-col w-32 lg:w-4/12">
+                                <p class="text-neutral-500 w-full">Block Reward</p>
+                                <p class="font-bold text-lg">{{ blockreward }} WART</p>
+                            </div>
+                            <div class="flex justify-center items-start flex-col w-32 lg:w-4/12 lg:pl-4">
+                                <p class="text-neutral-500 w-full">Supply</p>
+                                <p class="font-bold text-lg">{{ supply }}</p>
+                            </div>
+                            <div class="flex justify-center items-start flex-col w-32 lg:w-4/12 lg:pl-4">
+                                <p class="text-neutral-500 w-full">Marketcap</p>
+                                <p class="font-bold text-lg">${{ marketcap }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-around w-full md:w-8/12 lg:w-4/12">
+                        <div class="chart-container" style="position: relative; height:120px; width:100%">
+                            <canvas id="tps-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="h-32">
+
+            </div>
+            <div class="flex flex-col 2xl:flex-row">
+                <div class="w-full 2xl:w-8/12">
+                    <p class="font-bold text-2xl pb-2">Latest Transactions</p>
+                    <div class="w-full">
+                        <div class="bg-neutral-50 dark:bg-neutral-900 rounded-lg w-full md:w-full whitespace-nowrap border border-neutral-700 overflow-auto">
+                            <table class="table-auto w-full divide-neutral-700 divide-y px-4">
+                                <thead class="text-left text-md leading-4">
+                                <tr class="">
+                                    <th class="bg-neutral-50 dark:bg-neutral-900 rounded-tl-lg p-4 text-neutral-500">Hash</th>
+                                    <th class="bg-neutral-50 dark:bg-neutral-900 p-4 text-neutral-500">Amount</th>
+                                    <th class="bg-neutral-50 dark:bg-neutral-900 p-4 text-neutral-500">Timestamp</th>
+                                    <th class="bg-neutral-50 dark:bg-neutral-900 rounded-tr-lg p-4 text-neutral-500">Height</th>
+                                </tr>
+                                </thead>
+                                <tbody class="divide-neutral-700 divide-y text-md leading-4">
+                                {% for v in txdata %}
+                                <tr>
+                                    <td class="p-4 underline">{{ v[0] | safe }}</td>
+                                    <td class="p-4">{{ v[1] }}</td>
+                                    <td class="p-4">{{ v[2] }}</td>
+                                    <td class="p-4 underline">{{ v[3] | safe }}</td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden 2xl:block w-4"></div>
+                <div class="2xl:hidden h-8"></div>
+                <div class="w-full 2xl:w-4/12">
+                    <p class="font-bold text-2xl pb-2">Latest Blocks</p>
+                    <div class="w-full">
+                        <div class="bg-neutral-50 dark:bg-neutral-900 rounded-lg w-full md:w-full whitespace-nowrap border border-neutral-700 overflow-auto">
+                            <table class="table-auto w-full divide-neutral-700 divide-y rounded-lg px-4">
+                                <thead class="text-left text-md leading-4">
+                                <tr class="">
+                                    <th class="bg-neutral-50 dark:bg-neutral-900 rounded-tl-lg p-4 text-neutral-500">Height</th>
+                                    <th class="bg-neutral-50 dark:bg-neutral-900 p-4 text-neutral-500">Txs</th>
+                                    <th class="bg-neutral-50 dark:bg-neutral-900 rounded-tr-lg p-4 text-neutral-500">Timestamp</th>
+                                </tr>
+                                </thead>
+                                <tbody class="divide-neutral-700 divide-y text-md leading-4">
+                                {% for v in blockdata %}
+                                <tr>
+                                    <td class="p-4 underline">{{ v[0] | safe }}</td>
+                                    <td class="p-4">{{ v[1] }}</td>
+                                    <td class="p-4">{{ v[2] }}</td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+<script>
+    window.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('tps-chart').getContext('2d');
+    const tpschart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ tps_labels|safe }},
+            datasets: [{
+                data: {{ tps_data|safe }},
+                borderColor: 'rgb(153, 153, 255)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            bezierCurve: true,
+            elements: {
+                line: {
+                    tension: 0.6
+                }
+            },
+            pointRadius: 1,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'tps'
+                    }
+                },
+            scales: {
+                y: {
+                    display: false,
+                    title: {
+                        display: false
+                    }
+                },
+                x: {
+                    display: false,
+                    title: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+    });
+</script>
+{% endblock %}

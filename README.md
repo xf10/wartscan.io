@@ -1,1 +1,3 @@
-wartscan.io (soon™)
+# [wartscan.io](https://wartscan.io/)
+
+WIP

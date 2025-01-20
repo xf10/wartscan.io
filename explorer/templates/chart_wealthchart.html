@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Top 100 Wallets Chart | Warthog (WART) Blockchain Explorer
+{% endblock %}
+
+{% block content %}
+    <div class="h-8"></div>
+    <div class="">
+        <p class="font-bold text-2xl pb-2">Top 100 Wallets</p>
+        <div class="w-full">
+            <div class="bg-neutral-50 dark:bg-neutral-900 rounded-lg border border-neutral-700 flex justify-center p-4 overflow-auto">
+                <canvas id="wealthChart" width="600" height="420"></canvas>
+            </div>
+        </div>
+    </div>
+<div class="middle">
+    <div class="t">
+<!--                <p style="font-style: italic;">ad</p>-->
+    </div>
+</div>
+<script>
+    window.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('wealthChart').getContext('2d');
+const wealthChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+        labels: {{ wealth_labels|safe }},
+        datasets: [{
+            label: 'transactions',
+            data: {{ wealth_data|safe }}
+        }]
+    },
+    options: {
+        responsive: false,
+        plugins: {
+            legend: {
+                display: false,
+            }
+        },
+        onClick: (e, activeEls) => {
+            let datasetIndex = activeEls[0].datasetIndex;
+            let dataIndex = activeEls[0].index;
+            let datasetLabel = e.chart.data.datasets[datasetIndex].label;
+            let value = e.chart.data.datasets[datasetIndex].data[dataIndex];
+            let label = e.chart.data.labels[dataIndex];
+            location.href = '/account/'+label;
+        }
+    }
+});
+    });
+</script>
+{% endblock %}
