@@ -34,11 +34,11 @@
             </tr>
             <tr>
               <td class="p-4 text-neutral-500">Nonce:</td>
-              <td class="p-4">{{ tx["nonce"] }}</td>
+              <td class="p-4">{{ tx["nonce"] if tx["nonce"] }}</td>
             </tr>
             <tr>
               <td class="p-4 text-neutral-500">PinHeight:</td>
-              <td class="p-4">{{ tx["pinHeight"] }}</td>
+              <td class="p-4">{{ tx["pinHeight"] if tx["pinHeight"] }}</td>
             </tr>
             <tr>
               <td class="p-4 text-neutral-500">Height:</td>

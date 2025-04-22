@@ -175,6 +175,7 @@ class Explorer:
             block["floatVerus"] = data["janushash2"]
         return block
 
+    # TODO clean up
     def get_last20_blocks(self):
         with self.con:
             with self.con.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
@@ -188,17 +189,16 @@ class Explorer:
         txs = {}
 
         with self.con:
-            with self.con.cursor() as cur:
+            with self.con.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
                 cur.execute("SELECT * FROM txs WHERE height>=%s AND height<=%s ORDER BY id;", (h - 20, h))
                 data2 = cur.fetchall()
 
         txs_b = []
 
         for row in data2:
-            txs_b.append({"hash": row[2],
-                            "amount": row[3] / 100000000, "fee": row[4] / 100000000, "timestamp": row[10], "height": row[7],
-                            "sender": row[8],
-                            "recipient": row[9]})
+            txs_b.append({"hash": row["hash"], "amount": row["amount"] / 100000000, "fee": row["fee"] / 100000000,
+                          "timestamp": row["block_timestamp"], "height": row["height"], "sender": row["sender"],
+                          "recipient": row["recipient"]})
 
         for tx in txs_b:
             if tx["height"] not in txs.keys():
@@ -206,9 +206,10 @@ class Explorer:
             txs[tx["height"]].append(tx)
 
         for row in data:
-            blocks.append({"height": row[1], "difficulty": float(row[2]), "timestamp": row[3], "minedBy": row[13],
-                     "prevHash": row[9],
-                     "merkleRoot": row[5], "nonce": row[6], "transactions": txs[row[1]]})
+            print(row)
+            blocks.append({"height": row["height"], "difficulty": float(row["difficulty"]),
+                           "timestamp": row["timestamp"], "minedBy": row["minedby"], "prevHash": row["prevhash"],
+                           "merkleRoot": row["merkleroot"], "nonce": row["nonce"], "transactions": txs[row["height"]]})
         return blocks
 
     def get_forked_blocks(self, page):
@@ -475,7 +476,7 @@ class Explorer:
         accounts = []
         if data:
             for row in data:
-                accounts.append([f'{row["account"]} {row["label"]}', row["balance"] / 10 ** DECIMALS])
+                accounts.append([f'{row["account"]}, {row["label"]}', row["balance"] / 10 ** DECIMALS])
         return accounts
 
     def get_account_total(self):
