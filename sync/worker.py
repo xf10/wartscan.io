@@ -4,6 +4,7 @@ import threading
 from jobmanager import JobManager
 from logger import logger
 import db
+import signal
 
 jobman = JobManager()
 
@@ -34,8 +35,22 @@ db.createtables(db.db_connect())
 # jobman.chainsync.con.close()
 # jobman.chainsync.con = None
 
+
+class GracefulKiller:
+    def __init__(self):
+        self.kill_now = False
+        signal.signal(signal.SIGINT, self.exit_gracefully)
+        signal.signal(signal.SIGTERM, self.exit_gracefully)
+
+    def exit_gracefully(self, signum, frame):
+        logger.warning(f'Exitting [{signum}]')
+        self.kill_now = True
+
+
+g = GracefulKiller()
+
 # main loop
-while True:
+while not g.kill_now:
     t1 = time.perf_counter()
 
     jobman.tick()
