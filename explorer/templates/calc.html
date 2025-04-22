@@ -54,9 +54,10 @@ Mining Calculator | Warthog (WART) Blockchain Explorer
                 <p class="text-xl">Janusscore</p>
 
                 <p>Select a GPU/CPU combination to estimate your hashrate.</p>
+                <br>
                 <div>
                     <label for="select_gpu">Select GPU:</label>
-                    <select name="select_gpu" id="select_gpu">
+                    <select class="inline h-8 w-72 bg-neutral-50 dark:bg-neutral-900 border rounded-lg border-neutral-700 px-2 focus:outline-none focus:border-neutral-500 focus:ring-neutral-500"  name="select_gpu" id="select_gpu">
                         <option value="custom">Custom Hashrate</option>
                         <option value="1400">AMD 6800 XT (TUF), 1400mh/s</option>
                         <option value="79">AMD RX 550, 79mh/s</option>
@@ -148,13 +149,13 @@ Mining Calculator | Warthog (WART) Blockchain Explorer
                         <option value="5500">Nvidia RTX 4090, 5500mh/s</option>
                         <option value="6100">Nvidia RTX 4090, 6100mh/s</option>
                     </select>
-                    <input type="text" id="sha256t_hashrate" name="sha256t_hashrate">
-                    <label for="sha256t_hashrate">mh/s</label>
+                    <input class="inline h-8 w-24 bg-neutral-50 dark:bg-neutral-900 border rounded-lg border-neutral-700 placeholder:italic placeholder:text-neutral-500 px-2 focus:outline-none focus:border-neutral-500 focus:ring-neutral-500"  type="text" id="sha256t_hashrate" name="sha256t_hashrate">
+                    <label for="sha256t_hashrate">MH/s</label>
                 </div>
                 <br>
                 <div>
                     <label for="select_cpu">Select CPU:</label>
-                    <select name="select_cpu" id="select_cpu">
+                    <select class="inline h-8 w-72 bg-neutral-50 dark:bg-neutral-900 border rounded-lg border-neutral-700 px-2 focus:outline-none focus:border-neutral-500 focus:ring-neutral-500" name="select_cpu" id="select_cpu">
                         <option value="custom">Custom Hashrate</option>
                         <option value="90.60">AMD EPYC 7K62 (48/96), 90.60mh/s</option>
                         <option value="50">AMD Epyc 7532, 50mh/s</option>
@@ -293,11 +294,7 @@ Mining Calculator | Warthog (WART) Blockchain Explorer
                 </div>
 
                 <br/>
-                Janusscore:<div class="inline pl-4" id="janusscore">N/A</div> MH/s |<div class="inline pl-4" id="janusscoreghs">N/A</div> GH/s
-                <div class="2xl:hidden mt-4">
-                    <p>Trade WART on XeggeX:</p>
-                    <a href="https://xeggex.com/market/WART_USDT?ref=631145aa14cd9f74ffbe0de3&campaign=wartscan&source=wartscan&zone=calc" target="_blank"><img src="/static/img/xeggex_banner.webp" width="300" height="100"></a>
-                </div>
+                Janusscore:<div class="inline pl-4" id="janusscore">N/A</div> MH/s | <div class="inline" id="janusscoreghs">N/A</div> GH/s
             </div>
         </div>
     </div>
@@ -349,8 +346,11 @@ Mining Calculator | Warthog (WART) Blockchain Explorer
             gpu_input.addEventListener('input', calcJanus);
 
             function calcJanus(e) {
-            janus.textContent = String(Math.round(Number(gpu_input.value) * 10 * ((0.005 + Number(cpu_input.value)/Number(gpu_input.value))**0.3 - 0.005**0.3) / 3));
-            janusghs.textContent = String(Math.round(Number(gpu_input.value) * 10 * ((0.005 + Number(cpu_input.value)/Number(gpu_input.value))**0.3 - 0.005**0.3) / 3 / 1000 * 1000) / 1000);
+                let janusghs_v = String(Math.round(Number(gpu_input.value) * 10 * ((0.005 + Number(cpu_input.value)/Number(gpu_input.value))**0.3 - 0.005**0.3) / 3 / 1000 * 1000) / 1000);
+                janus.textContent = String(Math.round(Number(gpu_input.value) * 10 * ((0.005 + Number(cpu_input.value)/Number(gpu_input.value))**0.3 - 0.005**0.3) / 3));
+                janusghs.textContent = janusghs_v;
+                input.value = janusghs_v;
+                updateValue();
             }
   </script>
 {% endblock %}
