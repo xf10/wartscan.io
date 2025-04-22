@@ -351,4 +351,39 @@ def construct_blueprint(exp, t):
                                lastblock=timestamp_to_time_since(s.get_last_block_seen()),
                                servertime=timestamp_to_datetime(round(time.time())), escape=False)
 
+    @base.route("/difficulty", methods=['GET'])
+    def difficulty():
+        height = s.get_height()
+        latest_block = s.get_block(height)
+        diff = round(float(latest_block["difficulty"]) / 1000000000000, 2)
+        epoch_start = (height // 8640) * 8640 + 1
+        epoch_end = epoch_start + 8639
+        first_block = s.get_block(epoch_start)
+        epoch_start_time = timestamp_to_datetime(first_block["timestamp"])
+        blocktime = round((latest_block["timestamp"] - first_block["timestamp"]) / (height - epoch_start), 2)
+        epoch_end_time = timestamp_to_datetime(latest_block["timestamp"] + (epoch_end - height) * blocktime)
+        diff_next = round((diff / blocktime) * 20, 2)
+        return render_template("difficulty.html", diff=diff, height=height, epoch_start=epoch_start,
+                               epoch_end=epoch_end, blocktime=blocktime, diff_next=diff_next,
+                               epoch_start_time=epoch_start_time, epoch_end_time=epoch_end_time,
+                               lastblock=timestamp_to_time_since(s.get_last_block_seen()),
+                               servertime=timestamp_to_datetime(round(time.time())), escape=False)
+
+
+    @base.route("/halving", methods=['GET'])
+    def halving():
+        height = s.get_height()
+        block = s.get_block(height)
+        reward = calculate_blockreward(height) / (10 ** 8)
+
+        halving_height = (height // 3153600 + 1) * 3153600
+        halving_timestamp = timestamp_to_datetime(block["timestamp"] + (halving_height - height) * 20)
+        reward_next = calculate_blockreward(halving_height+1) / (10 ** 8)
+
+
+        return render_template("halving.html", height=height, reward=reward,
+                               halving_height=halving_height, halving_timestamp=halving_timestamp,
+                               reward_next=reward_next,
+                               lastblock=timestamp_to_time_since(s.get_last_block_seen()),
+                               servertime=timestamp_to_datetime(round(time.time())), escape=False)
     return base
