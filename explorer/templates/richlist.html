@@ -21,9 +21,9 @@ Richlist | Warthog (WART) Blockchain Explorer
             <tbody class="divide-neutral-700 divide-y text-md leading-4">
               {% for acc in accdata %}
               <tr>
-                <td class="p-4">{{ v["#"] }}</td>
-                <td class="p-4">{{ v["address"] | safe }}</td>
-                <td class="p-4">{{ v["balance"] }}</td>
+                <td class="p-4">{{ acc["#"] }}</td>
+                <td class="p-4">{{ acc["address"] | safe }}</td>
+                <td class="p-4">{{ acc["balance"] }}</td>
               </tr>
             {% endfor %}
             </tbody>

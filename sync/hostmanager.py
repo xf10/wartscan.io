@@ -5,7 +5,7 @@ from logger import logger
 
 class HostManager:
     def __init__(self):
-        self.hosts = os.environ.get("HOSTS", "").split(",")
+        self.hosts = os.environ.get("HOSTS").split(",")
         self.hostindex = 0
         self.currentstate = "success"
 

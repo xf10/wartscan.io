@@ -12,12 +12,46 @@
         <div class="bg-neutral-50 dark:bg-neutral-900 rounded-lg border border-neutral-700 overflow-auto">
           <table class="table-auto w-full divide-neutral-700 divide-y rounded-lg px-4">
             <tbody class=" text-md leading-4">
-            {% for v in txdata %}
             <tr>
-              <td class="p-4 text-neutral-500">{{ v[0].uppder() + v[1:] }}:</td>
-              <td class="p-4">{{ v[1] | safe }}</td>
+              <td class="p-4 text-neutral-500">Type:</td>
+              <td class="p-4">{{ tx["type"] }}</td>
             </tr>
-            {% endfor %}
+            <tr>
+              <td class="p-4 text-neutral-500">Hash:</td>
+              <td class="p-4">{{ tx["hash"] }}</td>
+            </tr>
+            <tr>
+              <td class="p-4 text-neutral-500">Amount:</td>
+              <td class="p-4">{{ tx["amount"] }} WART</td>
+            </tr>
+            <tr>
+              <td class="p-4 text-neutral-500">Fee:</td>
+              <td class="p-4">{{ tx["fee"] }} WART</td>
+            </tr>
+            <tr>
+              <td class="p-4 text-neutral-500">Timestamp:</td>
+              <td class="p-4">{{ tx["timestamp"] }}</td>
+            </tr>
+            <tr>
+              <td class="p-4 text-neutral-500">Nonce:</td>
+              <td class="p-4">{{ tx["nonce"] }}</td>
+            </tr>
+            <tr>
+              <td class="p-4 text-neutral-500">PinHeight:</td>
+              <td class="p-4">{{ tx["pinHeight"] }}</td>
+            </tr>
+            <tr>
+              <td class="p-4 text-neutral-500">Height:</td>
+              <td class="p-4"><a class="underline" href="/block/{{ tx["height"] }}">{{ tx["height"] }}</a> <p class="text-orange-300 inline pl-4">({{ confirmations }} Confirmation{{ "s" if confirmations != 1 else ""}})</p></td>
+            </tr>
+            <tr>
+              <td class="p-4 text-neutral-500">Sender:</td>
+              <td class="p-4">{{ tx["sender"] if tx["sender"] != "" else "Block Reward" }}</td>
+            </tr>
+            <tr>
+              <td class="p-4 text-neutral-500">Recipient:</td>
+                <td class="p-4"><a class="underline" href="/account/{{ tx["recipient"] }}">{{ tx["recipient"] }}</a></td>
+            </tr>
             </tbody>
           </table>
         </div>

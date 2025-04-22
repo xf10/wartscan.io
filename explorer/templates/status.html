@@ -11,15 +11,15 @@ Status | Warthog (WART) Blockchain Explorer
         <div class="w-full overflow-auto">
             <div class="bg-neutral-50 dark:bg-neutral-900 rounded-lg border border-neutral-700 flex flex-col text-center">
                 <p class="text-base p-4 inline-block underline"><a href="https://status.wartscan.io/" target="_blank">Uptime</a></p>
-                Average block time delta (24h): {{ blocktime_delta }}
-                Expected supply delta: {{ supply_delta }}
+                <p>Supply delta: {{ supply_delta }}</p>
+                <p>Average block timestamp delta (24h): {{ blocktime_delta }}</p>
             </div>
         </div>
     </div>
     <div class="h-32">
     </div>
     <div class="">
-        <p class="font-bold text-2xl pb-2">Status</p>
+        <p class="font-bold text-2xl pb-2"></p>
         <div class="w-full overflow-auto">
             <div class="bg-neutral-50 dark:bg-neutral-900 rounded-lg border border-neutral-700 flex flex-col text-center">
                 <table class="table-auto w-full divide-neutral-700 divide-y rounded-lg px-4">
@@ -34,10 +34,10 @@ Status | Warthog (WART) Blockchain Explorer
                     <tbody class="divide-neutral-700 divide-y text-md leading-4">
                       {% for log in logs %}
                       <tr>
-                        <td class="p-4">{{ log[0] }}</td>
-                        <td class="p-4">{{ log[1] }}</td>
-                        <td class="p-4">{{ log[2] }}</td>
-                        <td class="p-4 ">{{ log[3] }}</td>
+                        <td class="p-4">{{ log["timestamp"] }}</td>
+                        <td class="p-4">{{ log["event"] }}</td>
+                        <td class="p-4">{{ log["status"] }}</td>
+                        <td class="p-4 ">{{ (log["duration"]*1000) | round }} ms</td>
                       </tr>
                     {% endfor %}
                     </tbody>

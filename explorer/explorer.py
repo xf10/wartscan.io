@@ -434,8 +434,8 @@ class Explorer:
         if data:
             i = 1 + ((page-1)*50)
             for row in data:
-                accounts.append({"#": i, "address": f"<a class='underline' href='/account/{'account'}'>{row['account']}</a>",
-                                 "label": row["label"], "balance": f'{row["balance"] / 10 ** DECIMALS:,.8f}'})
+                accounts.append({"#": i, "address": row['account'], "label": row["label"],
+                                 "balance": f'{row["balance"] / 10 ** DECIMALS:,.8f}'})
                 i += 1
         return accounts
 
@@ -454,14 +454,14 @@ class Explorer:
         i = 1 + ((page-1)*50)
         for row in data:
             if row['miningratio24h' if daily else 'miningratio'] >= 60:
-                accounts.append({"#": i, "address": "<a href='/account/{}'>".format(row["account"]) + str(row["account"]) + "</a>",
-                                 "hashrateRatio": f"<p class='color-red inline'>{str(round(row['miningratio24h' if daily else 'miningratio'], 4))}</p>"})
+                accounts.append({"#": i, "address": "<a class='underline' href='/account/{}'>".format(row["account"]) + str(row["account"]) + "</a>",
+                                 "hashrateRatio": f"<p class='text-red-500 inline'>{str(round(row['miningratio24h' if daily else 'miningratio'], 4))}</p>"})
             elif row['miningratio24h' if daily else 'miningratio'] >= 45:
-                accounts.append({"#": i, "address": "<a href='/account/{}'>".format(row[1]) + str(row[1]) + "</a>",
-                                 "hashrateRatio": f"<p class='color-orange inline'>{str(round(row['miningratio24h' if daily else 'miningratio'], 4))}</p>"})
+                accounts.append({"#": i, "address": "<a class='underline' href='/account/{}'>".format(row[1]) + str(row[1]) + "</a>",
+                                 "hashrateRatio": f"<p class='text-orange-300 inline'>{str(round(row['miningratio24h' if daily else 'miningratio'], 4))}</p>"})
             else:
-                accounts.append({"#": i, "address": "<a href='/account/{}'>".format(row[1]) + str(row[1]) + "</a>",
-                                 "hashrateRatio": f"<p class='color-green inline'>{str(round(row['miningratio24h' if daily else 'miningratio'], 4))}</p>"})
+                accounts.append({"#": i, "address": "<a class='underline' href='/account/{}'>".format(row[1]) + str(row[1]) + "</a>",
+                                 "hashrateRatio": f"<p class='text-green-500 inline'>{str(round(row['miningratio24h' if daily else 'miningratio'], 4))}</p>"})
 
 
             i += 1
@@ -475,7 +475,7 @@ class Explorer:
         accounts = []
         if data:
             for row in data:
-                accounts.append([row["account"], row["balance"] / 10 ** DECIMALS])
+                accounts.append([f'{row["account"]} {row["label"]}', row["balance"] / 10 ** DECIMALS])
         return accounts
 
     def get_account_total(self):
@@ -636,14 +636,11 @@ class Explorer:
         return logs
 
     def get_latest_logs(self):
-        logs = []
         with self.con:
-            with self.con.cursor() as cur:
+            with self.con.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
                 cur.execute("SELECT * FROM logs ORDER BY id DESC LIMIT 25")
                 data = cur.fetchall()
-        for r in data:
-            logs.append([r[3], r[1], r[2], f"{round(r[4]*1000)}ms"])
-        return logs
+        return data
 
     def get_blocktime_delta(self):
         s = 0
@@ -658,3 +655,10 @@ class Explorer:
             c += 1
         print((s / c))
         return round((s / c), 2)
+
+    def get_supply_delta(self):
+        with self.con:
+            with self.con.cursor() as cur:
+                cur.execute("SELECT SUM(balance) FROM balances;")
+                data = cur.fetchone()
+        return data[0] - utils.calculate_expected_supply(self.get_height())

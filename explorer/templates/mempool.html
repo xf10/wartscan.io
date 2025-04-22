@@ -21,7 +21,7 @@ Mempool | Warthog (WART) Blockchain Explorer
               </tr>
             </thead>
             <tbody class="divide-neutral-700 divide-y text-md leading-4">
-              {% for v in txdata %}
+              {% for tx in txdata %}
               <tr>
                 <td class="p-4 underline">{{ v[0] | safe }}</td>
                 <td class="p-4">{{ v[1] }} WART</td>

@@ -12,12 +12,54 @@
         <div class="bg-neutral-50 dark:bg-neutral-900 rounded-lg border border-neutral-700 overflow-auto">
           <table class="table-auto w-full divide-neutral-700 divide-y rounded-lg px-4">
             <tbody class=" text-md leading-4">
-            {% for v in blockdata %}
             <tr>
-              <td class="p-4 text-neutral-500">{{ v[0].upper() + v[1:] }}:</td>
-              <td class="p-4">{{ v[1] | safe }}</td>
+              <td class="p-4 text-neutral-500">Height:</td>
+              <td class="p-4">{{ block["height"] | safe }}</td>
             </tr>
-            {% endfor %}
+            <tr>
+              <td class="p-4 text-neutral-500">Difficulty:</td>
+              <td class="p-4">{{ block["difficulty"] }}</td>
+            </tr>
+            <tr>
+              <td class="p-4 text-neutral-500">Timestamp:</td>
+              <td class="p-4">{{ block["timestamp"] }}</td>
+            </tr>
+            <tr>
+              <td class="p-4 text-neutral-500">Hash:</td>
+              <td class="p-4">{{ block["hash"] }}</td>
+            </tr>
+            <tr>
+              <td class="p-4 text-neutral-500">MerkleRoot:</td>
+              <td class="p-4">{{ block["merkleRoot"] }}</td>
+            </tr>
+            <tr>
+              <td class="p-4 text-neutral-500">Nonce:</td>
+              <td class="p-4">{{ block["nonce"] }}</td>
+            </tr>
+            <tr>
+              <td class="p-4 text-neutral-500">Previous Hash:</td>
+              <td class="p-4">{{ block["prevHash"] }}</td>
+            </tr>
+            <tr>
+              <td class="p-4 text-neutral-500">Target:</td>
+              <td class="p-4">{{ block["target"] }}</td>
+            </tr>
+            <tr>
+              <td class="p-4 text-neutral-500">Version:</td>
+              <td class="p-4">{{ block["version"] }}</td>
+            </tr>
+            <tr>
+              <td class="p-4 text-neutral-500">Mined By:</td>
+              <td class="p-4">{{ block["minedBy"] | safe }}</td>
+            </tr>
+            <tr>
+              <td class="p-4 text-neutral-500">FloatSha256t:</td>
+              <td class="p-4">{{ block["floatSha256t"] }}</td>
+            </tr>
+            <tr>
+              <td class="p-4 text-neutral-500">FloatVerus:</td>
+              <td class="p-4">{{ block["floatVerus"] }}</td>
+            </tr>
             </tbody>
           </table>
         </div>
@@ -39,15 +81,25 @@
               </tr>
             </thead>
             <tbody class="divide-neutral-700 divide-y text-md leading-4">
-              {% for v in txdata %}
-              <tr>
-                <td class="p-4 underline">{{ v[0] | safe }}</td>
-                <td class="p-4">{{ v[1] }} WART</td>
-                <td class="p-4">{{ v[2] }} WART</td>
-                <td class="p-4 underline">{{ v[3] | safe }}</td>
-                <td class="p-4 underline">{{ v[4] | safe }}</td>
-              </tr>
-            {% endfor %}
+              {% for tx in txdata %}
+                  <tr>
+                    <td class="p-4 underline whitespace-nowrap"><a href=/tx/{{ tx["hash"] }}>{{ tx["hash"][:18] }}...</a></td>
+                    <td class="p-4 whitespace-nowrap">{{ tx["amount"] | safe }} WART</td>
+                    <td class="p-4 whitespace-nowrap">{{ tx["fee"] }} WART</td>
+                    <td class="p-4 whitespace-nowrap">
+                        {% if tx["sender"] != "" %}
+                        <a class="underline" href=/account/{{ tx["sender"] }}>{{ tx["sender"][:18] }}...</a>
+                        {% else %}
+                        Block Reward
+                        {% endif %}
+                    </td>
+                    <td class="p-4 whitespace-nowrap">
+                        {% if tx["recipient"] != "" %}
+                        <a class="underline" href=/account/{{ tx["recipient"] }}>{{ tx["recipient"][:18] }}...</a>
+                        {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
             </tbody>
           </table>
           <div class="flex w-full justify-center">

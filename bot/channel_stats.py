@@ -37,9 +37,9 @@ class Stats(commands.Cog):
             r = requests.get(HOST + "/api/v1/stats/totalsupply")
             ts = int(r.text)
             r = requests.get(
-                "https://api.xeggex.com/api/v2/market/trades?symbol=WART_USDT&limit=1",
+                "https://api.coingecko.com/api/v3/simple/price?ids=warthog&vs_currencies=usd&include_24hr_vol=true&include_24hr_change=true&precision=2",
                 timeout=5).json()
-            price = round(float(r[0]["price"]), 2)
+            price = round(float(r["warthog"]["usd"]), 2)
         except Exception as e:
             print(e)
             return

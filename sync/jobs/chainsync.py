@@ -76,7 +76,7 @@ class ChainSync(Job):
                 except Exception:
                     logger.error("SQL error in get_db_height")
                     return 0
-        return row[0]
+        return row[0] if row[0] else 0
 
     def sync(self, startheight, endheight):
         sql = ""
@@ -380,24 +380,24 @@ class ChainSync(Job):
                 cur.execute(
                     f"SELECT * FROM blocks WHERE forked=0 AND height={height};")
                 data = cur.fetchone()
-        if data:
-            # if block data mismatch
-            if float(data["difficulty"]) != block["difficulty"] or data["timestamp"] != block["timestamp"] or \
-                    data["hash"] != block["hash"] or data["merkleroot"] != block["merkleRoot"] or data["prevhash"] != block["prevHash"]:
-
-                logger.debug(f"ForkCheck found invalid block at height {block['height']}")
-
-                # delete latest chart datapoint if necessary
-                with self.con:
-                    with self.con.cursor() as cur:
-                        cur.execute(
-                            "DELETE FROM historic_chart_data WHERE timestamp>=" + str(data[3]) + ";")
-                return False
-            if self.gettxn(height) != len(block["transactions"]):
-                return False
-            return True
-        else:
+        if not data:
             return False
+        # if block data mismatch
+        if float(data["difficulty"]) != block["difficulty"] or data["timestamp"] != block["timestamp"] or \
+                data["hash"] != block["hash"] or data["merkleroot"] != block["merkleRoot"] or data["prevhash"] != block["prevHash"]:
+
+            logger.debug(f"ForkCheck found invalid block at height {block['height']}")
+
+            # delete latest chart datapoint if necessary
+            with self.con:
+                with self.con.cursor() as cur:
+                    cur.execute(
+                        "DELETE FROM historic_chart_data WHERE timestamp>=" + str(data[3]) + ";")
+            return False
+        if self.gettxn(height) != len(block["transactions"]):
+            return False
+        return True
+
 
     def gettxn(self, height):
         with self.con:

@@ -9,7 +9,7 @@
     <div class="">
       <div class="group relative overflow-auto">
         <p class="font-bold text-2xl inline">Address</p>
-        <div class="p-2 rounded-lg bg-neutral-100 dark:bg-neutral-800 hidden absolute group-hover:block z-10 left-1/3" id="copy-tooltip">Copy</div>
+        <div class="p-1 rounded-lg bg-neutral-100 dark:bg-neutral-800 hidden absolute group-hover:block group-hover:visible z-10 left-1/3 top-0" id="copy-tooltip">Copy</div>
         <p class="text-purple-500 inline text-xl hover:cursor-pointer" id="addr" onclick="copy()" onmouseout="out()">{{ address }}</p>
       </div>
 
@@ -17,6 +17,12 @@
         <div class="bg-neutral-50 dark:bg-neutral-900 rounded-lg border border-neutral-700 overflow-auto">
           <table class="table-auto w-full divide-neutral-700 divide-y rounded-lg px-4">
             <tbody class="text-md leading-4 divide-neutral-700 divide-y">
+            {% if label %}
+                <tr>
+                  <td class="p-4 text-neutral-500">Label:</td>
+                  <td class="p-4 font-bold text-lg">{{ label }}</td>
+                </tr>
+            {% endif %}
             <tr>
               <td class="p-4 text-neutral-500">Balance:</td>
               <td class="p-4 font-bold text-lg">{{ balance }} WART</td>
@@ -29,7 +35,7 @@
             {% else %}
                 {% block ratiorow %}
                 <tr>
-                  <td class="p-4 text-neutral-500">MiningRatio:</td>
+                  <td class="p-4 text-neutral-500">Hashrate Ratio:</td>
                   <td class="p-4 text-lg">{{ miningratio | safe }}</td>
                 </tr>
                 {% endblock ratiorow %}
@@ -56,14 +62,28 @@
                   </tr>
                 </thead>
                 <tbody class="divide-neutral-700 divide-y text-md leading-4">
-                  {% for v in txdata %}
+                  {% for tx in txdata %}
                   <tr>
-                    <td class="p-4 underline whitespace-nowrap">{{ v[0] | safe }}</td>
-                    <td class="p-4 whitespace-nowrap">{{ v[1] }}</td>
-                    <td class="p-4 whitespace-nowrap">{{ v[2] | safe }} WART</td>
-                    <td class="p-4 whitespace-nowrap">{{ v[3] }} WART</td>
-                    <td class="p-4 underline whitespace-nowrap">{{ v[4] | safe }}</td>
-                    <td class="p-4 underline whitespace-nowrap">{{ v[5] | safe }}</td>
+                    <td class="p-4 underline whitespace-nowrap"><a href=/tx/{{ tx["hash"] }}>{{ tx["hash"][:18] }}...</a></td>
+                    <td class="p-4 whitespace-nowrap">{{ tx["timestamp"] }}</td>
+                    <td class="p-4 whitespace-nowrap {{ "text-red-500" if address == tx["sender"] else "text-green-500" }}">{{ tx["amount"] | safe }} WART</td>
+                    <td class="p-4 whitespace-nowrap">{{ tx["fee"] }} WART</td>
+                    <td class="p-4 whitespace-nowrap">
+                        {% if tx["sender"] == address %}
+                            {{ tx["sender"][:18] }}...
+                        {% elif tx["sender"] != "" %}
+                        <a class="underline" href=/account/{{ tx["sender"] }}>{{ tx["sender"][:18] }}...</a>
+                        {% else %}
+                        Block Reward
+                        {% endif %}
+                    </td>
+                    <td class="p-4 whitespace-nowrap">
+                        {% if tx["recipient"] == address %}
+                            {{ tx["recipient"][:18] }}...
+                        {% elif tx["recipient"] != "" %}
+                        <a class="underline" href=/account/{{ tx["recipient"] }}>{{ tx["recipient"][:18] }}...</a>
+                        {% endif %}
+                    </td>
                   </tr>
                 {% endfor %}
                 </tbody>

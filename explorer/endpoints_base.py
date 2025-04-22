@@ -2,7 +2,9 @@ import datetime
 import time
 
 from flask import Blueprint, render_template, abort, current_app, request, redirect, send_from_directory, make_response
-from utils import replace_timestamps, timestamp_to_datetime, timestamp_to_date, replace_timestamps_with_time_since, timestamp_to_time_since, calculate_expected_supply, calculate_blockreward
+from utils import (replace_timestamps, timestamp_to_datetime, timestamp_to_date, replace_timestamps_with_time_since,
+                   timestamp_to_time_since, calculate_expected_supply, calculate_blockreward, address_to_link_full,
+                   address_to_link_short, tx_to_link_short)
 import io
 import csv
 
@@ -40,9 +42,10 @@ def construct_blueprint(exp, t):
 
         return render_template("index.html", lastblock=timestamp_to_time_since(s.get_last_block_seen()),
                                servertime=timestamp_to_datetime(round(time.time())),
-                               txdata=l_txs, blockdata=l_blocks, hashrate=s.gethashrate(),
+                               txdata=l_txs, blockdata=l_blocks, hashrate=s.get_hashrate(),
                                height=f'{height:,}', supply=f'{tsupply:,}', price=f"{price:.2f}",
-                               marketcap=f'{round(price * tsupply):,}', blockreward=blockreward, tps_data=tps, tps_labels=tps_labels)
+                               marketcap=f'{round(price * tsupply):,}', blockreward=blockreward,
+                               tps_data=tps, tps_labels=tps_labels)
 
     @base.route("/search", methods=['POST'])
     def search():
@@ -93,8 +96,10 @@ def construct_blueprint(exp, t):
         else:
             miningratios = s.get_miningratios(page)
 
-        return render_template("miningratios.html", lastblock=timestamp_to_time_since(s.get_last_block_seen()),
-                               servertime=timestamp_to_datetime(round(time.time())), page=page, t=period, hrdata=miningratios)
+        return render_template("miningratios.html",
+                               lastblock=timestamp_to_time_since(s.get_last_block_seen()),
+                               servertime=timestamp_to_datetime(round(time.time())),
+                               page=page, t=period, hrdata=miningratios)
 
     @base.route("/block/<height>", methods=['GET'])
     def getblock(height):
@@ -117,22 +122,11 @@ def construct_blueprint(exp, t):
                                                                                                   height,
                                                                                                   int(height) + 1)
         block["timestamp"] = timestamp_to_datetime(block["timestamp"])
-        blockdata = []
-        for k in block.keys():
-            blockdata.append([k, block[k]])
 
         txs = s.get_txs_for_block(height, page)
-        txdata = []
-
-        if txs:
-            for i, tx in enumerate(txs):
-                txdata.append(["<a class='underline' href=/tx/" + tx["hash"] + ">" + tx["hash"][:18] + "..." + "</a>", tx["amount"],
-                              tx["fee"], "<a class='underline' href=/account/" + tx["sender"] + ">" + tx["sender"][:18] + "..." + "</a>",
-                              "<a class='underline' href=/account/" + tx["recipient"] + ">" + tx["recipient"][:18] + "..." + "</a>"])
-
 
         return render_template("block.html", title=f"Block {height}", lastblock=timestamp_to_time_since(s.get_last_block_seen()),
-                               servertime=timestamp_to_datetime(round(time.time())), page=page, height=height, blockdata=blockdata, txdata=txdata)
+                               servertime=timestamp_to_datetime(round(time.time())), page=page, height=height, block=block, txdata=txs)
 
 
     @base.route("/tx/<txhash>", methods=['GET'])
@@ -140,34 +134,23 @@ def construct_blueprint(exp, t):
         if not txhash.isalnum():
             abort(400)
         txhash = txhash.lower()
-        tx = replace_timestamps([s.get_tx(txhash)])
+        tx = s.get_tx(txhash)
+        confirmations = 0
         if tx is None:
+            # tx not found, try to get from mempool
             tx = s.get_tx_from_mempool(txhash)
-            if tx:
-                tx["height"] = """? <p class="text-orange-300 inline pl-4">(0 Confirmations)</p>"""
-                tx["sender"] = "<a class='underline' href=/account/" + tx["sender"] + ">" + tx["sender"] + "</a>"
-                tx["recipient"] = "<a class='underline' href=/account/" + tx["recipient"] + ">" + tx["recipient"] + "</a>"
-                tx["amount"] = str(tx["amount"]) + " WART"
-                tx["fee"] = str(tx["fee"]) + " WART"
         else:
-            tx = tx[0]
-            tx["height"] = "<a class='underline' href=/block/" + str(tx["height"]) + ">" + str(tx["height"]) + "</a>" +\
-                           """<p class="text-orange-300 inline pl-4">({} Confirmation{})</p>""".format(s.getlastblockindb() - tx["height"] + 1, "s" if (s.getlastblockindb() - tx["height"] + 1) != 1 else "")
-            tx["sender"] = "<a class='underline' href=/account/" + tx["sender"] + ">" + tx["sender"] + "</a>"
-            tx["recipient"] = "<a class='underline' href=/account/" + tx["recipient"] + ">" + tx["recipient"] + "</a>"
-            tx["amount"] = str(tx["amount"]) + " WART"
-            tx["fee"] = str(tx["fee"]) + " WART"
-        txdata = []
-        if tx is None:
-            txdata.append(["", "Transaction not found."])
-        else:
-            for key in tx.keys():
-                txdata.append([key, tx[key]])
+            tx["timestamp"] = timestamp_to_datetime(tx["timestamp"])
+            confirmations = s.get_height() - tx["height"] + 1
 
+        # tx still not found
+        if tx is None:
+            return render_template("explorer.html",
+                                   c1="Transaction not found! <a class='underline' href='/'>return home</a>")
 
         return render_template("transaction.html", title="Transaction {}".format(txhash),
                                lastblock=timestamp_to_time_since(s.get_last_block_seen()),
-                               servertime=timestamp_to_datetime(round(time.time())), txdata=txdata)
+                               servertime=timestamp_to_datetime(round(time.time())), tx=tx, confirmations=confirmations)
 
 
     @base.route("/mempool", methods=['GET'])
@@ -183,18 +166,19 @@ def construct_blueprint(exp, t):
         c1 += "<h2>Mempool</h2>"
 
         txs = s.get_mempool(page)
-        txdata = []
-        if txs:
-            for i, tx in enumerate(txs):
-                txdata.append(
-                    ["<a class='underline' href=/tx/" + tx["hash"] + ">" + tx["hash"][:18] + "..." + "</a>", tx["amount"],
-                     tx["fee"],
-                     "<a class='underline' href=/account/" + tx["sender"] + ">" + tx["sender"][:18] + "..." + "</a>",
-                     "<a class='underline' href=/account/" + tx["recipient"] + ">" + tx["recipient"][:18] + "..." + "</a>"])
+        if not txs:
+            return render_template("mempool.html", lastblock=timestamp_to_time_since(s.get_last_block_seen()),
+                               servertime=timestamp_to_datetime(round(time.time())),
+                               page=page, txdata=[])
+
+        for i, tx in enumerate(txs):
+            txs[i]["hash"] = tx_to_link_short(tx["hash"])
+            txs[i]["sender"] = address_to_link_short(tx["sender"])
+            txs[i]["recipient"] = address_to_link_short(tx["recipient"])
 
         return render_template("mempool.html", lastblock=timestamp_to_time_since(s.get_last_block_seen()),
                                servertime=timestamp_to_datetime(round(time.time())),
-                               page=page, txdata=txdata)
+                               page=page, txdata=txs)
 
 
     @base.route("/account/<address>", methods=['GET'])
@@ -232,38 +216,23 @@ def construct_blueprint(exp, t):
         else:
             acc["ratio"] = 0
 
-        txs = replace_timestamps(s.get_txs_for_account(address, page))
+        txs = s.get_txs_for_account(address, page)
         if txs is None:
             return render_template("account.html", title="Address {}".format(address),
                                    lastblock=timestamp_to_time_since(s.get_last_block_seen()),
                                    servertime=timestamp_to_datetime(round(time.time())), page=page, txdata=[],
-                                   address=address, balance=acc["balance"], value=acc["value"],
+                                   address=address, label=acc["label"], balance=acc["balance"], value=acc["value"],
                                    miningratio=acc["ratio"] if acc["ratio"] > 0 else "")
 
         for i, tx in enumerate(txs):
-            txs[i]["height"] = "<a href=/block/" + str(tx["height"]) + ">" + str(tx["height"]) + "</a>"
-            txs[i]["hash"] = "<a href=/tx/" + tx["hash"] + ">" + tx["hash"][:18] + "..." + "</a>"
-            tx["fee"] = str(tx["fee"])
-            if tx["sender"] == address:
-                txs[i]["sender"] = "<p class=''>" + tx["sender"][:18] + "..." + "</p>"
-                txs[i]["amount"] = "<p class='text-red-500 inline'>" + str(tx["amount"]) + "</p>"
-            else:
-                txs[i]["sender"] = "<a href=/account/" + tx["sender"] + ">" + tx["sender"][:18] + "..." + "</a>"
-                txs[i]["amount"] = "<p class='text-green-500 inline'>" + str(tx["amount"]) + "</p>"
-            if tx["recipient"] == address:
-                txs[i]["recipient"] = "<p class=''>" + tx["recipient"][:18] + "..." + "</p>"
-            else:
-                txs[i]["recipient"] = "<a href=/account/" + tx["recipient"] + ">" + tx["recipient"][:18] + "..." + "</a>"
+            txs[i]["timestamp"] = timestamp_to_time_since(tx["timestamp"])
 
-        txdata = []
-        for tx in txs:
-            txdata.append([tx["hash"], tx["timestamp"], tx["amount"], tx["fee"], tx["sender"], tx["recipient"]])
 
         return render_template("account.html", title="Address {}".format(address),
                                lastblock=timestamp_to_time_since(s.get_last_block_seen()),
-                               servertime=timestamp_to_datetime(round(time.time())), page=page, txdata=txdata,
+                               servertime=timestamp_to_datetime(round(time.time())), page=page, txdata=txs,
                                address=address, balance=acc["balance"], value=acc["value"],
-                               miningratio=acc["ratio"] if acc["ratio"] > 0.0 else "")
+                               miningratio=acc["ratio"] if miningratio > 0.0 else "")
 
 
     @base.route("/forked-blocks", methods=['GET'])
@@ -365,6 +334,10 @@ def construct_blueprint(exp, t):
         latest_logs = s.get_latest_logs()
         avg_time_to_find_block = s.get_blocktime_delta()
         supply_delta = s.get_supply_delta()
+
+        for i, log in enumerate(latest_logs):
+            latest_logs[i]["timestamp"] = timestamp_to_time_since(log["timestamp"])
+
 
         return render_template("status.html", logs=latest_logs, blocktime_delta=avg_time_to_find_block,
                                supply_delta=supply_delta,

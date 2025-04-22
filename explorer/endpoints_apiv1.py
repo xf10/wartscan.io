@@ -9,7 +9,7 @@ s = None
 def construct_blueprint(scanner):
     global s
 
-    bp = Blueprint('api', __name__, template_folder='templates')
+    bp = Blueprint('apiv1', __name__, template_folder='templates')
     api = Api(bp, version='1.0', title='wartscan.io API', description='Request rate should not exceed 3600 requests per hour / 60 per minute. Feel free to reach out in case you need custom limits.')
 
     ns = api.namespace("v1", description="API Methods")

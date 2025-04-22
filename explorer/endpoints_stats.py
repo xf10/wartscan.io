@@ -2,7 +2,7 @@ import time
 
 from flask import Blueprint, render_template, abort, current_app, request, redirect, send_from_directory, make_response
 
-from explorer.utils import timestamp_to_datetime, timestamp_to_time_since
+from utils import timestamp_to_datetime, timestamp_to_time_since
 
 s = None
 turnstile = None
@@ -11,7 +11,7 @@ turnstile = None
 def construct_blueprint(exp, t):
     global s, turnstile
 
-    stats = Blueprint('explorer', __name__, template_folder='templates')
+    stats = Blueprint('stats', __name__, template_folder='templates')
 
     turnstile = t
     s = exp
