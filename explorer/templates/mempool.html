@@ -23,11 +23,11 @@ Mempool | Warthog (WART) Blockchain Explorer
             <tbody class="divide-neutral-700 divide-y text-md leading-4">
               {% for tx in txdata %}
               <tr>
-                <td class="p-4 underline">{{ v[0] | safe }}</td>
-                <td class="p-4">{{ v[1] }} WART</td>
-                <td class="p-4">{{ v[2] }} WART</td>
-                <td class="p-4 underline">{{ v[3] | safe }}</td>
-                <td class="p-4 underline">{{ v[4] | safe }}</td>
+                <td class="p-4 underline"><a href="/tx/{{ tx["hash"] }}">{{ tx["hash"] }}</a></td>
+                <td class="p-4">{{ tx["amount"] }} WART</td>
+                <td class="p-4">{{ tx["fee"] }} WART</td>
+                <td class="p-4 underline"><a href="/account/{{ tx["sender"] }}">{{ tx["sender"] }}</a></td>
+                <td class="p-4 underline"><a href="/account/{{ tx["recipient"] }}">{{ tx["recipient"] }}</a></td>
               </tr>
             {% endfor %}
             </tbody>

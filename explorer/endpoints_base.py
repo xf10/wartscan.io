@@ -167,14 +167,7 @@ def construct_blueprint(exp, t):
 
         txs = s.get_mempool(page)
         if not txs:
-            return render_template("mempool.html", lastblock=timestamp_to_time_since(s.get_last_block_seen()),
-                               servertime=timestamp_to_datetime(round(time.time())),
-                               page=page, txdata=[])
-
-        for i, tx in enumerate(txs):
-            txs[i]["hash"] = tx_to_link_short(tx["hash"])
-            txs[i]["sender"] = address_to_link_short(tx["sender"])
-            txs[i]["recipient"] = address_to_link_short(tx["recipient"])
+            txs=[]
 
         return render_template("mempool.html", lastblock=timestamp_to_time_since(s.get_last_block_seen()),
                                servertime=timestamp_to_datetime(round(time.time())),
@@ -232,7 +225,7 @@ def construct_blueprint(exp, t):
                                lastblock=timestamp_to_time_since(s.get_last_block_seen()),
                                servertime=timestamp_to_datetime(round(time.time())), page=page, txdata=txs,
                                address=address, balance=acc["balance"], value=acc["value"],
-                               miningratio=acc["ratio"] if miningratio > 0.0 else "")
+                               miningratio=acc["ratio"] if miningratio > 0.0 else "", label=acc["label"])
 
 
     @base.route("/forked-blocks", methods=['GET'])
