@@ -206,7 +206,7 @@ class Explorer:
             txs[tx["height"]].append(tx)
 
         for row in data:
-            print(row)
+            # print(row)
             blocks.append({"height": row["height"], "difficulty": float(row["difficulty"]),
                            "timestamp": row["timestamp"], "minedBy": row["minedby"], "prevHash": row["prevhash"],
                            "merkleRoot": row["merkleroot"], "nonce": row["nonce"], "transactions": txs[row["height"]]})
@@ -476,7 +476,7 @@ class Explorer:
         accounts = []
         if data:
             for row in data:
-                accounts.append([f'{row["account"]}, {row["label"]}', row["balance"] / 10 ** DECIMALS])
+                accounts.append([row["account"], row["label"], row["balance"] / 10 ** DECIMALS])
         return accounts
 
     def get_account_total(self):
@@ -654,7 +654,7 @@ class Explorer:
         for r in data:
             s = s + (r[1] - r[0])
             c += 1
-        print((s / c))
+        # print((s / c))
         return round((s / c), 2)
 
     def get_supply_delta(self):

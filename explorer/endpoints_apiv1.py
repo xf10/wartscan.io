@@ -42,7 +42,7 @@ def construct_blueprint(scanner):
     class TotalSupply(Resource):
         @api.response(200, 'Success')
         def get(self):
-            return utils.calculate_expected_supply(s.get_height())
+            return round(utils.calculate_expected_supply(s.get_height()) / 10 ** 8)
 
 
     @ns.route("/stats/totalaccounts", methods=['GET'])
@@ -131,7 +131,7 @@ def construct_blueprint(scanner):
         def get(self):
             # height = request.args.get('height', type=int)
             blocks = s.get_last20_blocks()
-            print(blocks)
+            # print(blocks)
             # for i, block in enumerate(blocks):
             #     blocks[i]["difficulty"] = float(block["difficulty"])
             return blocks

@@ -26,10 +26,10 @@ def construct_blueprint(exp, t):
     def chart_wealthchart():
         wealth_data = []
         wealth_labels = []
-        accounts = s.gettop100()
+        accounts = s.get_top100()
 
         for account in accounts:
-            wealth_data.append(account[1])
+            wealth_data.append(account[2])
             wealth_labels.append(account[0])
 
         return render_template("chart_wealthchart.html", lastblock=timestamp_to_time_since(s.get_last_block_seen()),

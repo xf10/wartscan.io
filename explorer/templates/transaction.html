@@ -46,7 +46,11 @@
             </tr>
             <tr>
               <td class="p-4 text-neutral-500">Sender:</td>
-              <td class="p-4">{{ tx["sender"] if tx["sender"] != "" else "Block Reward" }}</td>
+                {% if tx["sender"] != "" %}
+                    <td class="p-4"><a class="underline" href="/account/{{ tx["sender"] }}">{{ tx["sender"] }}</a></td>
+                {% else %}
+                    <td class="p-4">Block Reward</td>
+                {% endif %}
             </tr>
             <tr>
               <td class="p-4 text-neutral-500">Recipient:</td>

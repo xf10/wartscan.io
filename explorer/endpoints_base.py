@@ -125,6 +125,9 @@ def construct_blueprint(exp, t):
 
         txs = s.get_txs_for_block(height, page)
 
+        if not txs:
+            txs = []
+
         return render_template("block.html", title=f"Block {height}", lastblock=timestamp_to_time_since(s.get_last_block_seen()),
                                servertime=timestamp_to_datetime(round(time.time())), page=page, height=height, block=block, txdata=txs)
 
@@ -218,7 +221,7 @@ def construct_blueprint(exp, t):
                                    miningratio=acc["ratio"] if acc["ratio"] > 0 else "")
 
         for i, tx in enumerate(txs):
-            txs[i]["timestamp"] = timestamp_to_time_since(tx["timestamp"])
+            txs[i]["timestamp"] = timestamp_to_datetime(tx["timestamp"])
 
 
         return render_template("account.html", title="Address {}".format(address),
