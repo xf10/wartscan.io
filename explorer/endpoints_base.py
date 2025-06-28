@@ -253,10 +253,12 @@ def construct_blueprint(exp, t):
     @base.route("/calculator", methods=['GET'])
     def mining_calculator():
         price = s.get_price()
+        height = s.get_height()
+        blockreward = calculate_blockreward(height) / 10 ** 8
 
         return render_template("calc.html", lastblock=timestamp_to_time_since(s.get_last_block_seen()),
                                servertime=timestamp_to_datetime(round(time.time())), network_hashrate=s.get_hashrate(),
-                               price=f"{price:.2f}", blockreward=3)
+                               price=f"{price:.2f}", blockreward=blockreward)
 
 
     @base.route("/links", methods=['GET'])
