@@ -75,7 +75,7 @@ def timestamp_to_time_since(timestamp):
     return time_since
 
 def calculate_blockreward(height):
-    return round(3 * 10 ** 8 * (0.5 ** (height // 3153601)))
+    return round(3 * 10 ** 8 * (0.5 ** ((height - 1) // 3153600)))
 
 
 def calculate_expected_supply(height):
