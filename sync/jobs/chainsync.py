@@ -164,12 +164,12 @@ class ChainSync(Job):
                 txn = cur.fetchone()[0]
 
         # split into rounds of 100000 txs
-        r = txn // 100000
+        nrounds = txn // 100000
         if txn % 100000 != 0:
-            r += 1
+            nrounds += 1
 
-        for i in range(r):
-            logger.debug(f"round {i+1} of {r}")
+        for i in range(nrounds):
+            logger.debug(f"round {i+1} of {nrounds}")
 
             balance_deltas = {}
             sql = ""
