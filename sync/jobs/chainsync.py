@@ -222,27 +222,27 @@ class ChainSync(Job):
                             r24 = 0
                         balance_deltas[tx["recipient"]].append(r)
                         balance_deltas[tx["recipient"]].append(r24)
-                    elif startheight == 1:
-                        r = self.calculate_miningratio(tx["recipient"])
-                        if r is None:
-                            r = 0
-                        balance_deltas[tx["recipient"]].append(r)
-                        balance_deltas[tx["recipient"]].append(0)
 
             logger.debug(f"balcalc iteration {time.perf_counter()-t1}s")
 
             for account in balance_deltas.keys():
+                if startheight == 1:
+                    r = self.calculate_miningratio(account)
+                    if r is None:
+                        r = 0
+                    balance_deltas[tx["recipient"]].append(r)
+                    balance_deltas[tx["recipient"]].append(0)
                 if len(balance_deltas[account]) > 3:
                     sql += "INSERT INTO balances (account, balance, first_movement, last_movement, miningratio, miningratio24h)" \
-                           f" VALUES ('{tx['recipient']}', {balance_deltas[tx['recipient']][0]}, {balance_deltas[tx['recipient']][1]}," \
-                           f" {balance_deltas[tx['recipient']][2]}, {balance_deltas[tx['recipient']][3]}, {balance_deltas[tx['recipient']][4]})" \
+                           f" VALUES ('{account}', {balance_deltas[account][0]}, {balance_deltas[account][1]}," \
+                           f" {balance_deltas[account][2]}, {balance_deltas[account][3]}, {balance_deltas[account][4]})" \
                            f" ON CONFLICT (account) DO UPDATE SET" \
                            f" balance = balances.balance {'-' if rollback else '+'} EXCLUDED.balance, last_movement = EXCLUDED.last_movement," \
                            " miningratio = EXCLUDED.miningratio, miningratio24h = EXCLUDED.miningratio24h;"
                 else:
                     sql += "INSERT INTO balances (account, balance, first_movement, last_movement)" \
-                           f" VALUES ('{tx['sender']}', {balance_deltas[tx['sender']][0]}, {balance_deltas[tx['sender']][1]}," \
-                           f" {balance_deltas[tx['sender']][2]}) ON CONFLICT (account) DO UPDATE SET balance = balances.balance" \
+                           f" VALUES ('{account}', {balance_deltas[account][0]}, {balance_deltas[account][1]}," \
+                           f" {balance_deltas[account][2]}) ON CONFLICT (account) DO UPDATE SET balance = balances.balance" \
                            f" {'-' if rollback else '+'} EXCLUDED.balance, last_movement = EXCLUDED.last_movement;"
 
             with self.con:
