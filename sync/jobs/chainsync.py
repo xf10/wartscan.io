@@ -163,8 +163,6 @@ class ChainSync(Job):
                 cur.execute("SELECT COUNT(*) FROM txs WHERE height >= {};".format(startheight))
                 txn = cur.fetchone()[0]
 
-        balance_deltas = {}
-
         # split into rounds of 100000 txs
         r = txn // 100000
         if txn % 100000 != 0:
@@ -172,6 +170,10 @@ class ChainSync(Job):
 
         for i in range(r):
             logger.debug(f"round {i+1} of {r}")
+
+            balance_deltas = {}
+            sql = ""
+
             with self.con:
                 with self.con.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
                     try:
@@ -180,6 +182,9 @@ class ChainSync(Job):
                         txs = cur.fetchall()
                     except Exception as e:
                         logger.error("SQL error in calculate_balances SELECT")
+
+            if not txs:
+                return "fail"
 
             for tx in txs:
                 # check tx type
@@ -199,6 +204,11 @@ class ChainSync(Job):
                         balance_deltas[tx["sender"]][0] -= tx["amount"] + tx["fee"]
                         balance_deltas[tx["sender"]][2] = tx["block_timestamp"]
 
+                    sql += "INSERT INTO balances (account, balance, first_movement, last_movement)" \
+                           f" VALUES ('{tx['sender']}', {balance_deltas[tx['sender']][0]}, {balance_deltas[tx['sender']][1]}," \
+                           f" {balance_deltas[tx['sender']][2]}) ON CONFLICT (account) DO UPDATE SET balance = balances.balance" \
+                           f" {'-' if rollback else '+'} EXCLUDED.balance, last_movement = EXCLUDED.last_movement;"
+
                 elif tx["type"] == "reward":
                     # recipient balance
                     if tx["recipient"] not in balance_deltas.keys():
@@ -209,55 +219,47 @@ class ChainSync(Job):
 
                     # miningratio
                     if startheight != 1:
-                        r = self.calculate_miningratio(self.con, tx["recipient"])
-                        r24 = self.calculate_miningratio(self.con, tx["recipient"], daily=True)
+                        r = self.calculate_miningratio(tx["recipient"])
+                        r24 = self.calculate_miningratio(tx["recipient"], daily=True)
                         if r is None:
                             r = 0
                         if r24 is None:
                             r24 = 0
                         balance_deltas[tx["recipient"]].append(r)
                         balance_deltas[tx["recipient"]].append(r24)
-            logger.debug(f"balcalc iteration {time.perf_counter()-t1}s")
+                    elif startheight == 1:
+                        r = self.calculate_miningratio(tx["recipient"])
+                        if r is None:
+                            r = 0
+                        balance_deltas[tx["recipient"]].append(r)
+                        balance_deltas[tx["recipient"]].append(0)
 
+                    sql += "INSERT INTO balances (account, balance, first_movement, last_movement, miningratio, miningratio24h)" \
+                           f" VALUES ('{tx['recipient']}', {balance_deltas[tx['recipient']][0]}, {balance_deltas[tx['recipient']][1]}," \
+                           f" {balance_deltas[tx['recipient']][2]}, {balance_deltas[tx['recipient']][3]}, {balance_deltas[tx['recipient']][4]})" \
+                           f" ON CONFLICT (account) DO UPDATE SET" \
+                           f" balance = balances.balance {'-' if rollback else '+'} EXCLUDED.balance, last_movement = EXCLUDED.last_movement," \
+                           " miningratio = EXCLUDED.miningratio, miningratio24h = EXCLUDED.miningratio24h;"
 
-        sql = ""
-        for account in balance_deltas.keys():
-            t_ratio = time.perf_counter()
-            # miningratio
-            if startheight == 1:
-                r = self.calculate_miningratio(self.con, account)
-                if r is None:
-                    r = 0
-                balance_deltas[account].append(r)
-                balance_deltas[account].append(0)
-            logger.debug(f"ratio time {time.perf_counter()-t_ratio}s")
+                logger.debug(f"balcalc iteration {time.perf_counter()-t1}s")
 
+            with self.con:
+                with self.con.cursor() as cur:
+                    try:
+                        db.commit_sql(self.con, sql)
+                    except Exception:
+                        logger.error("SQL error in calculate_balances INSERT")
 
-            # no mining ratio update
-            if len(balance_deltas[account]) == 3:
-                    sql += "INSERT INTO balances (account, balance, first_movement, last_movement)"\
-                    f" VALUES ('{account}', {balance_deltas[account][0]}, {balance_deltas[account][1]},"\
-                    f" {balance_deltas[account][2]}) ON CONFLICT (account) DO UPDATE SET balance = balances.balance"\
-                    f" {'-' if rollback else '+'} EXCLUDED.balance, last_movement = EXCLUDED.last_movement;"
-            # miningratio update
-            else:
-                    sql += "INSERT INTO balances (account, balance, first_movement, last_movement, miningratio, miningratio24h)"\
-                    f" VALUES ('{account}', {balance_deltas[account][0]}, {balance_deltas[account][1]},"\
-                    f" {balance_deltas[account][2]}, {balance_deltas[account][3]}, {balance_deltas[account][4]})"\
-                    f" ON CONFLICT (account) DO UPDATE SET"\
-                    f" balance = balances.balance {'-' if rollback else '+'} EXCLUDED.balance, last_movement = EXCLUDED.last_movement,"\
-                    " miningratio = EXCLUDED.miningratio, miningratio24h = EXCLUDED.miningratio24h;"
+            logger.debug(f"after insertion {time.perf_counter() - t1}s")
 
 
 
-        with self.con:
-            with self.con.cursor() as cur:
-                try:
-                    db.commit_sql(self.con, sql)
-                except Exception:
-                    logger.error("SQL error in calculate_balances INSERT")
 
-        logger.debug(f"after insertion {time.perf_counter() - t1}s")
+            # t_ratio = time.perf_counter()
+            # logger.debug(f"ratio time {time.perf_counter()-t_ratio}s")
+
+
+
 
         # check balance total against expected circulating supply
         with self.con:
@@ -287,8 +289,8 @@ class ChainSync(Job):
 
     def calculate_miningratio(self, address, daily=False):
         sha256t_list = []
-        with self:
-            with self.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
+        with self.con:
+            with self.con.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
                 try:
                     if daily:
                         cur.execute(
@@ -303,6 +305,9 @@ class ChainSync(Job):
 
         for row in data:
             sha256t_list.append(float(row["janushash1"]))
+
+        if len(sha256t_list) == 0:
+            return None
 
         """Function to determine the mining ratio
         from a list of observed sha256t values

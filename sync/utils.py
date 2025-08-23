@@ -85,6 +85,12 @@ def calculate_expected_supply(height):
 
     return round(s)
 
+def timestamp_to_datetime(timestamp):
+    try:
+        d = datetime.fromtimestamp(timestamp, pytz.UTC)
+        return d.strftime("%m/%d/%Y, %H:%M:%S")
+    except Exception as e:
+        return timestamp
 
 
 

@@ -29,11 +29,11 @@ t.start()
 db.createtables(db.db_connect())
 
 # DEBUG
-# jobman.chainsync.con = db.db_connect()
-# jobman.chainsync.reset_balances()
-# jobman.chainsync.calculate_balances(1)
-# jobman.chainsync.con.close()
-# jobman.chainsync.con = None
+jobman.chainsync.con = db.db_connect()
+jobman.chainsync.reset_balances()
+jobman.chainsync.calculate_balances(1)
+jobman.chainsync.con.close()
+jobman.chainsync.con = None
 
 
 class GracefulKiller:
