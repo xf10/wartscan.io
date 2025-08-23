@@ -36,11 +36,6 @@ class ChainSync(Job):
         node_height = self.get_node_height()
         db_height = self.get_db_height()
 
-        # If latest block in db is older than 10 minutes mark update as failed
-        if db_height != 0:
-            if db.getblock(self.con, self.get_db_height())["Timestamp"] < time.time() - 600:
-                self.hostman.conn_fail()
-
         # if node height is not higher than db height return
         if db_height >= node_height:
             self.con.close()
@@ -48,6 +43,12 @@ class ChainSync(Job):
 
         # sync
         status = self.sync(db_height+1, node_height)
+
+        # TODO getblock doesnt exist
+        # If latest block in db is older than 10 minutes mark update as failed
+        # if db_height != 0:
+        #     if self.getblock(self.con, self.get_db_height())["Timestamp"] < time.time() - 600:
+        #         self.hostman.conn_fail()
 
         # close db connection
         self.con.close()
@@ -208,8 +209,8 @@ class ChainSync(Job):
 
                     # miningratio
                     if startheight != 1:
-                        r = utils.calculate_miningratio(self.con, tx["recipient"])
-                        r24 = utils.calculate_miningratio(self.con, tx["recipient"], daily=True)
+                        r = self.calculate_miningratio(self.con, tx["recipient"])
+                        r24 = self.calculate_miningratio(self.con, tx["recipient"], daily=True)
                         if r is None:
                             r = 0
                         if r24 is None:
@@ -224,7 +225,7 @@ class ChainSync(Job):
             t_ratio = time.perf_counter()
             # miningratio
             if startheight == 1:
-                r = utils.calculate_miningratio(self.con, account)
+                r = self.calculate_miningratio(self.con, account)
                 if r is None:
                     r = 0
                 balance_deltas[account].append(r)
