@@ -245,13 +245,12 @@ class ChainSync(Job):
                            f" {balance_deltas[account][2]}) ON CONFLICT (account) DO UPDATE SET balance = balances.balance" \
                            f" {'-' if rollback else '+'} EXCLUDED.balance, last_movement = EXCLUDED.last_movement;"
 
-            with self.con:
-                with self.con.cursor() as cur:
-                    try:
-                        db.commit_sql(self.con, sql)
-                    except Exception as e:
-                        logger.error("SQL error in calculate_balances INSERT")
-                        logger.error(e)
+
+                try:
+                    db.commit_sql(self.con, sql)
+                except Exception as e:
+                    logger.error("SQL error in calculate_balances INSERT")
+                    logger.error(e)
 
             logger.debug(f"after insertion {time.perf_counter() - t1}s")
 
