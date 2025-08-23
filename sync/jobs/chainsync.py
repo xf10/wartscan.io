@@ -163,6 +163,9 @@ class ChainSync(Job):
                 cur.execute("SELECT COUNT(*) FROM txs WHERE height >= {};".format(startheight))
                 txn = cur.fetchone()[0]
 
+        balance_deltas = {}
+        sql = ""
+
         # split into rounds of 100000 txs
         nrounds = txn // 100000
         if txn % 100000 != 0:
@@ -170,9 +173,6 @@ class ChainSync(Job):
 
         for i in range(nrounds):
             logger.debug(f"round {i+1} of {nrounds}")
-
-            balance_deltas = {}
-            sql = ""
 
             with self.con:
                 with self.con.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
@@ -225,32 +225,32 @@ class ChainSync(Job):
 
             logger.debug(f"balcalc iteration {time.perf_counter()-t1}s")
 
-            for account in balance_deltas.keys():
-                if startheight == 1:
-                    r = self.calculate_miningratio(account)
-                    if r is None:
-                        r = 0
-                    balance_deltas[tx["recipient"]].append(r)
-                    balance_deltas[tx["recipient"]].append(0)
-                if len(balance_deltas[account]) > 3:
-                    sql += "INSERT INTO balances (account, balance, first_movement, last_movement, miningratio, miningratio24h)" \
-                           f" VALUES ('{account}', {balance_deltas[account][0]}, {balance_deltas[account][1]}," \
-                           f" {balance_deltas[account][2]}, {balance_deltas[account][3]}, {balance_deltas[account][4]})" \
-                           f" ON CONFLICT (account) DO UPDATE SET" \
-                           f" balance = balances.balance {'-' if rollback else '+'} EXCLUDED.balance, last_movement = EXCLUDED.last_movement," \
-                           " miningratio = EXCLUDED.miningratio, miningratio24h = EXCLUDED.miningratio24h;"
-                else:
-                    sql += "INSERT INTO balances (account, balance, first_movement, last_movement)" \
-                           f" VALUES ('{account}', {balance_deltas[account][0]}, {balance_deltas[account][1]}," \
-                           f" {balance_deltas[account][2]}) ON CONFLICT (account) DO UPDATE SET balance = balances.balance" \
-                           f" {'-' if rollback else '+'} EXCLUDED.balance, last_movement = EXCLUDED.last_movement;"
+        for account in balance_deltas.keys():
+            if startheight == 1:
+                r = self.calculate_miningratio(account)
+                if r is None:
+                    r = 0
+                balance_deltas[tx["recipient"]].append(r)
+                balance_deltas[tx["recipient"]].append(0)
+            if len(balance_deltas[account]) > 3:
+                sql += "INSERT INTO balances (account, balance, first_movement, last_movement, miningratio, miningratio24h)" \
+                       f" VALUES ('{account}', {balance_deltas[account][0]}, {balance_deltas[account][1]}," \
+                       f" {balance_deltas[account][2]}, {balance_deltas[account][3]}, {balance_deltas[account][4]})" \
+                       f" ON CONFLICT (account) DO UPDATE SET" \
+                       f" balance = balances.balance {'-' if rollback else '+'} EXCLUDED.balance, last_movement = EXCLUDED.last_movement," \
+                       " miningratio = EXCLUDED.miningratio, miningratio24h = EXCLUDED.miningratio24h;"
+            else:
+                sql += "INSERT INTO balances (account, balance, first_movement, last_movement)" \
+                       f" VALUES ('{account}', {balance_deltas[account][0]}, {balance_deltas[account][1]}," \
+                       f" {balance_deltas[account][2]}) ON CONFLICT (account) DO UPDATE SET balance = balances.balance" \
+                       f" {'-' if rollback else '+'} EXCLUDED.balance, last_movement = EXCLUDED.last_movement;"
 
 
-                try:
-                    db.commit_sql(self.con, sql)
-                except Exception as e:
-                    logger.error("SQL error in calculate_balances INSERT")
-                    logger.error(e)
+            try:
+                db.commit_sql(self.con, sql)
+            except Exception as e:
+                logger.error("SQL error in calculate_balances INSERT")
+                logger.error(e)
 
             logger.debug(f"after insertion {time.perf_counter() - t1}s")
 
