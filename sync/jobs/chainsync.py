@@ -241,7 +241,7 @@ class ChainSync(Job):
                            f" balance = balances.balance {'-' if rollback else '+'} EXCLUDED.balance, last_movement = EXCLUDED.last_movement," \
                            " miningratio = EXCLUDED.miningratio, miningratio24h = EXCLUDED.miningratio24h;"
 
-                logger.debug(f"balcalc iteration {time.perf_counter()-t1}s")
+            logger.debug(f"balcalc iteration {time.perf_counter()-t1}s")
 
             with self.con:
                 with self.con.cursor() as cur:
