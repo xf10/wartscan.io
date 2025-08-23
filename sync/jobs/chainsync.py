@@ -249,8 +249,9 @@ class ChainSync(Job):
                 with self.con.cursor() as cur:
                     try:
                         db.commit_sql(self.con, sql)
-                    except Exception:
+                    except Exception as e:
                         logger.error("SQL error in calculate_balances INSERT")
+                        logger.error(e)
 
             logger.debug(f"after insertion {time.perf_counter() - t1}s")
 
