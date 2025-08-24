@@ -230,8 +230,8 @@ class ChainSync(Job):
                 r = self.calculate_miningratio(account)
                 if r is None:
                     r = 0
-                balance_deltas[tx["recipient"]].append(r)
-                balance_deltas[tx["recipient"]].append(0)
+                balance_deltas[account].append(r)
+                balance_deltas[account].append(0)
             if len(balance_deltas[account]) > 3:
                 sql += "INSERT INTO balances (account, balance, first_movement, last_movement, miningratio, miningratio24h)" \
                        f" VALUES ('{account}', {balance_deltas[account][0]}, {balance_deltas[account][1]}," \
@@ -375,7 +375,9 @@ class ChainSync(Job):
                     with self.con:
                         with self.con.cursor() as cur:
                             cur.execute(f"UPDATE blocks SET forked=1 WHERE height>={i + 1};")
-                            self.calculate_balances(i + 1, rollback=True)
+                    self.calculate_balances(i + 1, rollback=True)
+                    with self.con:
+                        with self.con.cursor() as cur:
                             cur.execute(f"DELETE FROM txs WHERE height>={i + 1};")
 
                     return "success"

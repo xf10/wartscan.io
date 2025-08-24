@@ -1,4 +1,6 @@
 import time
+import traceback
+
 from hostmanager import HostManager
 from jobs.chainsync import ChainSync
 from jobs.charts_calc import ChartsCalc
@@ -68,6 +70,7 @@ class JobManager:
                 status = job["obj"].execute()
             except Exception as e:
                 logger.error(f"Unexpected exception while executing {job['jobName']}: {e}")
+                logger.error(traceback.format_exc())
 
             job["lastRun"] = tick_t_s
             d = time.perf_counter() - t_s
